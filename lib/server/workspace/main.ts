@@ -238,10 +238,10 @@ async function saveReplenishment(c: Tx, t: string, before: Row, next: Row) {
       if (prev && same(prev, x)) continue;
       const data = JSON.stringify(x);
       if (key === "policies") {
-        await c.query("INSERT INTO sajada.reorder_policy(tenant_id,location_id,product_id,data,supplier_id) VALUES($1,$2,$3,$4,$5) ON CONFLICT(tenant_id,location_id,product_id) DO UPDATE SET data=excluded.data,supplier_id=excluded.supplier_id", [t, x.locationId, x.productId, data, x.supplierId ?? null]);
+        await c.query("INSERT INTO sajada.reorder_policy(tenant_id,location_id,product_id,data) VALUES($1,$2,$3,$4) ON CONFLICT(tenant_id,location_id,product_id) DO UPDATE SET data=excluded.data", [t, x.locationId, x.productId, data]);
       } else if (key === "orders") {
         if (prev) await c.query("UPDATE sajada.purchase_order SET data=$3 WHERE tenant_id=$1 AND id=$2", [t, x.id, data]);
-        else await c.query("INSERT INTO sajada.purchase_order(tenant_id,id,location_id,product_id,data,supplier_id) VALUES($1,$2,$3,$4,$5,$6)", [t, x.id, x.locationId, x.productId, data, x.supplierId ?? null]);
+        else await c.query("INSERT INTO sajada.purchase_order(tenant_id,id,location_id,product_id,data) VALUES($1,$2,$3,$4,$5)", [t, x.id, x.locationId, x.productId, data]);
       } else if (key === "suppliers") {
         await c.query("INSERT INTO sajada.purchase_supplier(tenant_id,id,data) VALUES($1,$2,$3) ON CONFLICT(tenant_id,id) DO UPDATE SET data=excluded.data", [t, x.id, data]);
       } else if (prev) {
