@@ -17,12 +17,12 @@ import {pathToFileURL} from 'node:url';
 import {createRemoteJWKSet,jwtVerify} from 'jose';
 import {createInvestor,openCapital,draftProfit,settleProfit,cancelProfit,approveProfit} from './profit-service.mjs';
 import {validateOrder,idempotency,tenantClaim} from './domain.mjs';
-export function createApi({pool,jwksUrl,issuer,audience,logger=console}){
+export function createHandler({pool,jwksUrl,issuer,audience,logger=console}){
 const jwks=createRemoteJWKSet(new URL(jwksUrl));
 function send(res,status,data){res.writeHead(status,{'content-type':'application/json','cache-control':'no-store'});res.end(JSON.stringify(data));}
 async function body(req){let text='';for await(const c of req){text+=c;if(text.length>65536)throw Error('Request body too large');}return JSON.parse(text||'{}');}
 async function tx(tenant,fn){const c=await pool.connect();try{await c.query('BEGIN');await c.query("SELECT set_config('app.tenant_id',$1,true)",[tenant]);const result=await fn(c);await c.query('COMMIT');return result;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}
-return http.createServer(async(req,res)=>{
+return async(req,res)=>{
  try{
   if(req.url==='/healthz')return send(res,200,{status:'ok',service:'sajada-transactions'});
   const token=req.headers.authorization?.match(/^Bearer ([A-Za-z0-9_.-]+)$/i)?.[1];if(!token)return send(res,401,{error:'Authentication required'});
@@ -145,8 +145,9 @@ return http.createServer(async(req,res)=>{
   }
   return send(res,404,{error:'Route not found'});
  }catch(e){logger.error(e.message);if([400,403,404,409].includes(e.status))return send(res,e.status,{error:e.message});if(e.code==='P0002')return send(res,404,{error:'Member not found'});if(e.code==='42501')return send(res,403,{error:'Database scope or privilege denied'});if(['23505','23514','55000'].includes(e.code))return send(res,409,{error:'Record conflict, exhausted sequence, or immutable record'});return send(res,400,{error:'Request could not be processed. Check input, stock, membership and idempotency key.'});}
- });
+ };
 }
+export function createApi(options){return http.createServer(createHandler(options));}
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  for(const key of ['DATABASE_URL','OIDC_JWKS_URL','OIDC_ISSUER','OIDC_AUDIENCE'])if(!process.env[key])throw Error(`${key} required`);
  const {default:pg}=await import('pg');
