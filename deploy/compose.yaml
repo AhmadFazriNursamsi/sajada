@@ -2,8 +2,8 @@
 # (.github/workflows/docker.yml). Only this file and .env are needed on the server:
 #   cp .env.example .env   # then fill in the passwords
 #   docker compose pull && docker compose up -d
-# The app is published on the server's loopback; nginx in front of it serves the domain over
-# HTTPS (nginx-sajada.conf). It has no accounts yet: SAJADA_WEB_PASSWORD protects every page.
+# The app is published on APP_BIND (loopback by default); nginx in front of it serves the domain
+# over HTTPS (nginx-sajada.conf). It has no accounts yet: SAJADA_WEB_PASSWORD protects every page.
 name: sajada
 services:
   postgres:
@@ -44,6 +44,7 @@ services:
       OIDC_ISSUER: ${OIDC_ISSUER:-http://127.0.0.1:8085/realms/sajada}
       OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://127.0.0.1:8085/realms/sajada/protocol/openid-connect/certs}
       OIDC_AUDIENCE: ${OIDC_AUDIENCE:-sajada-api}
-    ports: ["127.0.0.1:${APP_PORT:-3000}:3000"]
+    # APP_BIND: 127.0.0.1 for nginx on this server, or this server's internal IP for a gateway.
+    ports: ["${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"]
 volumes:
   pgdata:
