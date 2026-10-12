@@ -1,0 +1,45 @@
+# Runs Sajada on a server from the images GitHub Actions publishes to GHCR
+# (.github/workflows/docker.yml). Only this file and .env are needed on the server:
+#   cp .env.example .env   # then fill in the passwords
+#   docker compose pull && docker compose up -d
+# No sign-in yet: the app only serves requests addressed to 127.0.0.1, so it is published
+# on the server's loopback and opened through an SSH tunnel (see README.md here).
+name: sajada
+services:
+  postgres:
+    image: ${SAJADA_DB_IMAGE:-ghcr.io/ahmadfazrinursamsi/sajada-db}:${SAJADA_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sajada_owner -d sajada"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  # Creates/updates the non-owner role the app connects as, on every start.
+  db-setup:
+    image: ${SAJADA_DB_IMAGE:-ghcr.io/ahmadfazrinursamsi/sajada-db}:${SAJADA_TAG:-latest}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      APP_DB_PASSWORD: ${SAJADA_API_PASSWORD:?Set SAJADA_API_PASSWORD in .env}
+    command: ["sh", "-c", "psql -h postgres -U sajada_owner -d sajada -v ON_ERROR_STOP=1 -q -v pw=\"$$APP_DB_PASSWORD\" -f /sajada/app-role.sql"]
+  app:
+    image: ${SAJADA_APP_IMAGE:-ghcr.io/ahmadfazrinursamsi/sajada}:${SAJADA_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      db-setup:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://sajada_api:${SAJADA_API_PASSWORD}@postgres:5432/sajada
+      SAJADA_LOCAL_MODE: "1"
+      OIDC_ISSUER: ${OIDC_ISSUER:-http://127.0.0.1:8085/realms/sajada}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://127.0.0.1:8085/realms/sajada/protocol/openid-connect/certs}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-sajada-api}
+    ports: ["127.0.0.1:${APP_PORT:-3000}:3000"]
+volumes:
+  pgdata:

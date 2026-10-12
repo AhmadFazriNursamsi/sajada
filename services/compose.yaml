@@ -3,7 +3,8 @@
 # ClickHouse is in the "analytics" profile: `docker compose --profile analytics up -d`.
 services:
   postgres:
-    image: postgres:16-alpine
+    # Schema and migrations are baked in by docker/db.Dockerfile (also published to GHCR).
+    build: { context: .., dockerfile: docker/db.Dockerfile }
     environment:
       POSTGRES_DB: sajada
       POSTGRES_USER: sajada_owner
@@ -16,29 +17,6 @@ services:
       retries: 30
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ../architecture/postgresql.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./transaction/hardening.sql:/docker-entrypoint-initdb.d/02-hardening.sql:ro
-      - ./transaction/member-number.sql:/docker-entrypoint-initdb.d/03-member-number.sql:ro
-      - ./transaction/profit-sharing.sql:/docker-entrypoint-initdb.d/04-profit-sharing.sql:ro
-      - ./transaction/profit-corrections.sql:/docker-entrypoint-initdb.d/05-profit-corrections.sql:ro
-      - ./transaction/profit-approval.sql:/docker-entrypoint-initdb.d/06-profit-approval.sql:ro
-      - ./transaction/capital-wallet-refund.sql:/docker-entrypoint-initdb.d/20-capital-wallet-refund.sql:ro
-      - ./transaction/web-workspace.sql:/docker-entrypoint-initdb.d/21-web-workspace.sql:ro
-      - ./transaction/web-sections.sql:/docker-entrypoint-initdb.d/22-web-sections.sql:ro
-      - ./transaction/web-maintenance.sql:/docker-entrypoint-initdb.d/23-web-maintenance.sql:ro
-      - ./transaction/capital-wallet.sql:/docker-entrypoint-initdb.d/19-capital-wallet.sql:ro
-      - ./transaction/po-replacement-reversal.sql:/docker-entrypoint-initdb.d/18-po-replacement-reversal.sql:ro
-      - ./transaction/po-replacement.sql:/docker-entrypoint-initdb.d/17-po-replacement.sql:ro
-      - ./transaction/po-inspection.sql:/docker-entrypoint-initdb.d/16-po-inspection.sql:ro
-      - ./transaction/po-confirmation.sql:/docker-entrypoint-initdb.d/15-po-confirmation.sql:ro
-      - ./transaction/po-delivery.sql:/docker-entrypoint-initdb.d/14-po-delivery.sql:ro
-      - ./transaction/suppliers.sql:/docker-entrypoint-initdb.d/13-suppliers.sql:ro
-      - ./transaction/payables.sql:/docker-entrypoint-initdb.d/12-payables.sql:ro
-      - ./transaction/replenishment.sql:/docker-entrypoint-initdb.d/11-replenishment.sql:ro
-      - ./transaction/order-receipt.sql:/docker-entrypoint-initdb.d/10-order-receipt.sql:ro
-      - ./transaction/order-dispatch.sql:/docker-entrypoint-initdb.d/09-order-dispatch.sql:ro
-      - ./transaction/order-cancel.sql:/docker-entrypoint-initdb.d/08-order-cancel.sql:ro
-      - ./transaction/inventory.sql:/docker-entrypoint-initdb.d/07-inventory.sql:ro
   # Creates/updates the non-owner role the app connects as (also for an existing data volume).
   db-setup:
     image: postgres:16-alpine

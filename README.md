@@ -41,6 +41,8 @@ pnpm docker:logs   # log aplikasi
 pnpm docker:down   # hentikan container (data PostgreSQL tetap di volume)
 ```
 
+Untuk server, image siap pakai dipublikasikan ke GHCR; lihat [`deploy/README.md`](deploy/README.md).
+
 Container `app` dibangun dari `Dockerfile` (Node 24), mengisi koperasi demo yang belum ada saat start, dan hanya dipublikasikan di 127.0.0.1 karena belum ada login. Service `db-setup` menjalankan `services/local-dev-role.sql` setiap kali naik. ClickHouse ada di profil `analytics` (`docker compose --project-directory services --profile analytics up -d`). Bila port 5432 sudah dipakai, salin `services/compose.override.example.yaml` menjadi `services/compose.override.yaml`. `pnpm dev`/`dev:all` (port 5173) dan container (port 3000) memakai database yang sama. Image aplikasi sekitar 300 MB (output `standalone` Next.js); build membutuhkan beberapa GB ruang disk sementara, bersihkan dengan `docker builder prune` bila disk menipis.
 
 `pnpm db:setup` aman dijalankan ulang: password di `services/.env`, isi `.env.local`, dan data yang sudah ada dipertahankan. `pnpm db:seed` hanya mengisi koperasi demo yang belum ada.

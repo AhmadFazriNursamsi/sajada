@@ -1,0 +1,5 @@
+# Build context for docker/db.Dockerfile: only the SQL it copies.
+*
+!architecture/postgresql.sql
+!services/local-dev-role.sql
+!services/transaction/*.sql
