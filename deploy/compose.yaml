@@ -11,8 +11,9 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    # Over TCP: during first-start migrations PostgreSQL only listens on its socket.
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sajada_owner -d sajada"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U sajada_owner -d sajada"]
       interval: 2s
       timeout: 3s
       retries: 30
