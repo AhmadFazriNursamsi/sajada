@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   // The Docker image runs the self-contained server from .next/standalone (see Dockerfile).
   output: "standalone",
+  // The sidebar collapse toggle sits bottom-left; keep the dev indicator out of its way.
+  devIndicators: { position: "bottom-right" },
 };
 
 export default nextConfig;
