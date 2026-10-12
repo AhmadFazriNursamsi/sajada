@@ -2,8 +2,8 @@
 # (.github/workflows/docker.yml). Only this file and .env are needed on the server:
 #   cp .env.example .env   # then fill in the passwords
 #   docker compose pull && docker compose up -d
-# No sign-in yet: the app only serves requests addressed to 127.0.0.1, so it is published
-# on the server's loopback and opened through an SSH tunnel (see README.md here).
+# The app is published on the server's loopback; nginx in front of it serves the domain over
+# HTTPS (nginx-sajada.conf). It has no accounts yet: SAJADA_WEB_PASSWORD protects every page.
 name: sajada
 services:
   postgres:
@@ -37,6 +37,9 @@ services:
     environment:
       DATABASE_URL: postgres://sajada_api:${SAJADA_API_PASSWORD}@postgres:5432/sajada
       SAJADA_LOCAL_MODE: "1"
+      SAJADA_PUBLIC_HOSTS: ${SAJADA_PUBLIC_HOSTS:-}
+      SAJADA_WEB_USER: ${SAJADA_WEB_USER:-admin}
+      SAJADA_WEB_PASSWORD: ${SAJADA_WEB_PASSWORD:-}
       OIDC_ISSUER: ${OIDC_ISSUER:-http://127.0.0.1:8085/realms/sajada}
       OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://127.0.0.1:8085/realms/sajada/protocol/openid-connect/certs}
       OIDC_AUDIENCE: ${OIDC_AUDIENCE:-sajada-api}

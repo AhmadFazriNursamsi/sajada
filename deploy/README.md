@@ -9,14 +9,17 @@ Tag `latest` mengikuti `main`; setiap commit juga punya tag `sha-<7 karakter>` u
 
 ## Pertama kali
 
-Server hanya butuh Docker (dengan plugin `docker compose`) serta dua file dari folder ini: `compose.yaml` dan `.env.example`.
+Server hanya butuh Docker (dengan plugin `docker compose`), nginx, certbot, serta tiga file dari folder ini: `compose.yaml`, `.env.example` dan `nginx-sajada.conf`. Domain `sajada.devoutsys.com` sudah mengarah ke server (202.59.166.142).
 
 ```bash
 mkdir ~/sajada && cd ~/sajada
-# salin compose.yaml dan .env.example ke folder ini, lalu:
+# salin compose.yaml, .env.example dan nginx-sajada.conf ke folder ini, lalu:
 cp .env.example .env
-sed -i "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 16)/; s/^SAJADA_API_PASSWORD=.*/SAJADA_API_PASSWORD=$(openssl rand -hex 16)/" .env
+for k in POSTGRES_PASSWORD SAJADA_API_PASSWORD SAJADA_WEB_PASSWORD; do
+  sed -i "s/^$k=.*/$k=$(openssl rand -hex 16)/" .env
+done
 chmod 600 .env
+grep SAJADA_WEB_PASSWORD .env   # password untuk login di browser (user: admin)
 
 # Repo privat, jadi image juga privat: login sekali dengan Personal Access Token
 # (classic) yang punya scope read:packages.
@@ -26,17 +29,20 @@ docker compose pull
 docker compose up -d
 ```
 
-Saat pertama jalan, database dibuat dari migrasi dan tiga koperasi demo diisi otomatis.
+Saat pertama jalan, database dibuat dari migrasi dan tiga koperasi demo diisi otomatis. Bila port 3000 di server sudah dipakai, ubah `APP_PORT` di `.env` dan port di `nginx-sajada.conf`.
 
-## Membuka aplikasi
-
-Belum ada login, jadi aplikasi hanya melayani permintaan ke `127.0.0.1` (`lib/server/local.ts`) dan hanya dipublikasikan di loopback server. Buka lewat SSH tunnel dari komputer Anda:
+## Domain dan HTTPS (nginx)
 
 ```bash
-ssh -N -L 3000:127.0.0.1:3000 user@server
+sudo cp nginx-sajada.conf /etc/nginx/sites-available/sajada
+sudo ln -s /etc/nginx/sites-available/sajada /etc/nginx/sites-enabled/sajada
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d sajada.devoutsys.com   # sertifikat Let's Encrypt + redirect ke https
 ```
 
-lalu buka http://127.0.0.1:3000. Jangan memasang reverse proxy publik atau mengubah port menjadi `0.0.0.0` sebelum ada fitur login: siapa pun yang bisa membuka aplikasi bisa mengubah dan mereset data.
+Buka https://sajada.devoutsys.com, lalu login dengan user `admin` dan `SAJADA_WEB_PASSWORD` dari `.env`.
+
+Belum ada akun per pengguna: satu password itu melindungi semua halaman (HTTP Basic, dicek oleh aplikasi sendiri di `proxy.ts`), jadi bagikan hanya ke pengurus yang berwenang dan ganti bila bocor (ubah `.env`, lalu `docker compose up -d`). Bila `SAJADA_WEB_PASSWORD` kosong, aplikasi menolak domain dan hanya melayani `127.0.0.1` (SSH tunnel: `ssh -N -L 3000:127.0.0.1:3000 user@server`). API `/v1` tidak memakai password ini; ia memakai token OIDC.
 
 ## Memperbarui
 
