@@ -11,12 +11,15 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS build
 COPY . .
 RUN pnpm build
+# The seed imports pg and zod; zod is bundled into the server, so standalone leaves it out.
+RUN mkdir -p /seed-modules && cp -RL node_modules/zod /seed-modules/zod
 
 FROM base AS runner
-ENV NODE_ENV=production
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/.next ./.next
-COPY package.json next.config.ts tsconfig.json ./
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
+# Only the files the server traces as used, plus static assets (Next leaves those out of standalone).
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /seed-modules/zod ./node_modules/zod
 COPY public ./public
 # The demo seed runs at start-up from these sources (Node strips the TypeScript types).
 COPY lib ./lib
