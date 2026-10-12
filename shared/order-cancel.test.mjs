@@ -1,0 +1,13 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {seedWarehouses,applyStock,available} from './warehouses.ts';
+import {cancelBrowserOrder} from './order-cancel.ts';
+import {ledger,trialBalance} from './accounting.ts';import {summarize} from './analytics.ts';
+const products=[{id:'sku',stock:10}],at='2026-10-08T01:00:00Z';
+let w=seedWarehouses(products,'A');w=applyStock(w,{id:'res',kind:'reserve',locationId:'depot-awal',productId:'sku',quantity:2,reference:'order'},'admin',at);
+const order={id:'order',locationId:'depot-awal',tenant:'A',date:'2026-10-08',total:200,items:[{product_id:'sku',quantity:2,price:100,name:'Test'}]};
+const cancel=(o=order,paid=[],state=w,reason='Changed mind')=>cancelBrowserOrder(o,paid,state,reason,'admin',at,()=> 'release');
+test('cancellation restores availability and retains audit without mutating input',()=>{const r=cancel();assert.equal(available(r.warehouses,'depot-awal','sku'),10);assert.equal(available(w,'depot-awal','sku'),8);assert.equal(r.order.cancelReason,'Changed mind');assert.equal(r.order.cancelledBy,'admin');assert.deepEqual(cancel(r.order,[],r.warehouses),r);assert.throws(()=>cancel(r.order,[],r.warehouses,'Different'));});
+test('paid, shipped, legacy and missing reason are rejected',()=>{assert.throws(()=>cancel(order,['order']));assert.throws(()=>cancel({...order,locationId:undefined}));assert.throws(()=>cancel(order,[],w,' '));const shipped=applyStock(w,{id:'ship',kind:'ship',sourceId:'res',reference:'sent'},'admin',at);assert.throws(()=>cancel(order,[],shipped));});
+test('missing reservation history cannot cancel',()=>assert.throws(()=>cancel({...order,items:[{product_id:'sku',quantity:3}]})));
+test('manual released reservation can cancel without second stock release',()=>{const released=applyStock(w,{id:'manual',kind:'release',sourceId:'res',reference:'manual'},'admin',at);const r=cancel(order,[],released);assert.strictEqual(r.warehouses,released);});
+test('cancelled order excluded from analytics and AR reversed in demo GL',()=>{const r=cancel();assert.equal(summarize([r.order],'A','2026-10',[]).count,0);const rows=ledger([r.order],[],[],[],[]);assert.equal(rows.length,4);const balances=trialBalance(rows);assert.equal(balances.find(b=>b.account==='1200').balanceDebit,0);assert.equal(balances.find(b=>b.account==='4100').balanceCredit,0);});

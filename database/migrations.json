@@ -1,0 +1,82 @@
+[
+  {
+    "order": 1,
+    "source": "architecture/postgresql.sql"
+  },
+  {
+    "order": 2,
+    "source": "services/transaction/hardening.sql"
+  },
+  {
+    "order": 3,
+    "source": "services/transaction/member-number.sql"
+  },
+  {
+    "order": 4,
+    "source": "services/transaction/profit-sharing.sql"
+  },
+  {
+    "order": 5,
+    "source": "services/transaction/profit-corrections.sql"
+  },
+  {
+    "order": 6,
+    "source": "services/transaction/profit-approval.sql"
+  },
+  {
+    "order": 7,
+    "source": "services/transaction/inventory.sql"
+  },
+  {
+    "order": 8,
+    "source": "services/transaction/order-cancel.sql"
+  },
+  {
+    "order": 9,
+    "source": "services/transaction/order-dispatch.sql"
+  },
+  {
+    "order": 10,
+    "source": "services/transaction/order-receipt.sql"
+  },
+  {
+    "order": 11,
+    "source": "services/transaction/replenishment.sql"
+  },
+  {
+    "order": 12,
+    "source": "services/transaction/payables.sql"
+  },
+  {
+    "order": 13,
+    "source": "services/transaction/suppliers.sql"
+  },
+  {
+    "order": 14,
+    "source": "services/transaction/po-delivery.sql"
+  },
+  {
+    "order": 15,
+    "source": "services/transaction/po-confirmation.sql"
+  },
+  {
+    "order": 16,
+    "source": "services/transaction/po-inspection.sql"
+  },
+  {
+    "order": 17,
+    "source": "services/transaction/po-replacement.sql"
+  },
+  {
+    "order": 18,
+    "source": "services/transaction/po-replacement-reversal.sql"
+  },
+  {
+    "order": 19,
+    "source": "services/transaction/capital-wallet.sql"
+  },
+  {
+    "order": 20,
+    "source": "services/transaction/capital-wallet-refund.sql"
+  }
+]

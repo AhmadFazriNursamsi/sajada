@@ -1,0 +1,4 @@
+# Local override: port 5432 is used by another container on this machine.
+services:
+  postgres:
+    ports: !override ["127.0.0.1:5433:5432"]

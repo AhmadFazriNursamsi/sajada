@@ -1,0 +1,1 @@
+{"name":"sajada-transactions","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test domain.test.mjs"},"dependencies":{"pg":"8.13.1","jose":"5.9.6"}}

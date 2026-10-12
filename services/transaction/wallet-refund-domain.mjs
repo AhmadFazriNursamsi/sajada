@@ -1,0 +1,14 @@
+// Generated from shared/wallet-refund.ts.
+import { walletBalance } from './member-capital-domain.mjs';
+import { cancelBrowserOrder } from './order-cancel-domain.mjs';
+export function refundBrowserWalletOrder(orders, paid, records, tenant, id, input, w, actor, at, newId) { const o = orders.find(o => o.id === id); if (!o || o.tenant !== tenant)
+    throw Error('Pesanan tidak ditemukan pada tenant aktif.'); if (!input.id?.trim() || !input.reference?.trim() || input.reference.length > 100 || !input.reason?.trim() || input.reason.length > 200)
+    throw Error('ID, referensi dan alasan refund wajib diisi.'); if (o.walletRefund) {
+    if (o.walletRefund.id !== input.id || o.walletRefund.reference !== input.reference.trim() || o.walletRefund.reason !== input.reason.trim())
+        throw Error('Refund sudah dicatat berbeda.');
+    walletBalance(o.walletPayment.member, records, orders, tenant);
+    return { orders, paid, warehouses: w };
+} if (orders.some(x => x.walletRefund && (x.walletRefund.id === input.id || x.walletRefund.reference.toLowerCase() === input.reference.trim().toLowerCase())))
+    throw Error('ID/referensi refund sudah digunakan.'); if (o.receiptPolicy !== 'full-receipt-v1')
+    throw Error('Pesanan lama memerlukan rekonsiliasi komisi dan penerimaan sebelum refund.'); if (!o.walletPayment || !paid.includes(id) || o.cancelledAt || o.dispatchedAt || o.receivedAt || !actor?.trim() || actor.length > 200 || !Number.isFinite(Date.parse(at)) || Date.parse(at) < Date.parse(o.walletPayment.at))
+    throw Error('Refund penuh hanya untuk pembayaran saldo sebelum pengiriman.'); walletBalance(o.walletPayment.member, records, orders, tenant); const r = cancelBrowserOrder(o, paid.filter(x => x !== id), w, input.reason, actor, at, newId), next = orders.map(x => x.id === id ? { ...r.order, walletRefund: { ...input, reference: input.reference.trim(), reason: input.reason.trim(), amount: o.walletPayment.amount, actor, at } } : x); walletBalance(o.walletPayment.member, records, next, tenant); return { orders: next, paid, warehouses: r.warehouses }; }

@@ -1,0 +1,13 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {ancestors,changeSponsor,descendants,commissions,volume,transition,POLICY} from './mlm.ts';
+const graph={A:null,B:'A',C:'B',D:'C',E:'D'};
+const sale={id:'o1',seller:'E',upline:ancestors(graph,'E'),total:100000,policy:POLICY};
+test('rejects self sponsorship and multi-hop cycles',()=>{assert.throws(()=>changeSponsor(graph,'A','A'));assert.throws(()=>changeSponsor(graph,'A','E'));});
+test('rejects a sponsor outside tenant',()=>assert.throws(()=>changeSponsor(graph,'B','other')));
+test('finds all descendants once',()=>assert.deepEqual(descendants(graph,'B'),['C','D','E']));
+test('limits commission to personal plus three uplines',()=>{const c=commissions([sale]);assert.deepEqual(c.map(r=>[r.beneficiary,r.amount]),[['E',5000],['D',3000],['C',2000],['B',1000]]);});
+test('replayed sale is not double counted',()=>{assert.equal(commissions([sale,sale]).length,4);assert.deepEqual(volume([sale,sale],'A'),{personal:0,downline:100000,group:100000});});
+test('group includes own volume exactly once',()=>assert.deepEqual(volume([sale],'E'),{personal:100000,downline:0,group:100000}));
+test('network change does not change existing sale snapshot',()=>{changeSponsor(graph,'E','A');assert.equal(commissions([sale])[1].beneficiary,'D');});
+test('rejects negative values and unknown policy',()=>{assert.throws(()=>commissions([{...sale,total:-1}]));assert.throws(()=>commissions([{...sale,policy:'unknown'}]));});
+test('cannot pay without approval or pay twice',()=>{assert.throws(()=>transition('pending','pay'));assert.equal(transition('pending','approve'),'approved');assert.equal(transition('approved','pay'),'paid');assert.throws(()=>transition('paid','pay'));});

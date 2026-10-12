@@ -1,0 +1,1 @@
+{"name":"sajada-analytics-consumer","type":"module","private":true,"scripts":{"start":"node consumer.mjs"},"dependencies":{"pg":"8.13.1"}}

@@ -1,0 +1,15 @@
+import ts from '../../node_modules/typescript/lib/typescript.js';
+import {readFile,writeFile} from 'node:fs/promises';
+const source=await readFile(new URL('../../shared/warehouses.ts',import.meta.url),'utf8');
+await writeFile(new URL('./inventory-domain.mjs',import.meta.url),'// Generated from shared/warehouses.ts by build-inventory-domain.mjs.\n'+ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText);
+
+const reportSource=(await readFile(new URL('../../shared/inventory-reports.ts',import.meta.url),'utf8')).replace("'./warehouses.ts'","'./inventory-domain.mjs'");
+await writeFile(new URL('./inventory-reports-domain.mjs',import.meta.url),'// Generated from shared/inventory-reports.ts by build-inventory-domain.mjs.\n'+ts.transpileModule(reportSource,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText);
+
+const purchaseSource=(await readFile(new URL('../../shared/replenishment.ts',import.meta.url),'utf8')).replace("'./warehouses.ts'","'./inventory-domain.mjs'").replace("'./po-confirmation.ts'","'./po-confirmation-domain.mjs'").replace("'./po-inspection.ts'","'./po-inspection-domain.mjs'").replace("'./po-replacement.ts'","'./po-replacement-domain.mjs'");
+await writeFile(new URL('./replenishment-domain.mjs',import.meta.url),'// Generated from shared/replenishment.ts.\n'+ts.transpileModule(purchaseSource,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText);
+
+for(const [name,replace] of [['wallet-refund',{"'./member-capital.ts'":"'./member-capital-domain.mjs'","'./order-cancel.ts'":"'./order-cancel-domain.mjs'"}],['order-cancel',{"'./warehouses.ts'":"'./inventory-domain.mjs'"}],['member-capital',{}],['po-replacement',{}],['po-inspection',{"'./replenishment.ts'":"'./replenishment-domain.mjs'"}],['supplier-performance',{"'./po-delivery.ts'":"'./po-delivery-domain.mjs'","'./ap-aging.ts'":"'./ap-aging-domain.mjs'","'./replenishment.ts'":"'./replenishment-domain.mjs'"}],['po-confirmation',{"'./ap-aging.ts'":"'./ap-aging-domain.mjs'"}],['po-delivery',{"'./po-confirmation.ts'":"'./po-confirmation-domain.mjs'","'./replenishment.ts'":"'./replenishment-domain.mjs'","'./ap-aging.ts'":"'./ap-aging-domain.mjs'"}],['po-document',{"'./po-replacement.ts'":"'./po-replacement-domain.mjs'","'./po-inspection.ts'":"'./po-inspection-domain.mjs'","'./po-confirmation.ts'":"'./po-confirmation-domain.mjs'","'./replenishment.ts'":"'./replenishment-domain.mjs'"}],['ap-statement', {"'./ap-aging.ts'":"'./ap-aging-domain.mjs'"}],['ap-aging',{}],['accounting',{"'./member-capital.ts'":"'./member-capital-domain.mjs'"}],['purchase-ap',{"'./inventory-reports.ts'":"'./inventory-reports-domain.mjs'"}]]){
+ let input=await readFile(new URL('../../shared/'+name+'.ts',import.meta.url),'utf8');for(const [from,to] of Object.entries(replace))input=input.replaceAll(from,to);
+ await writeFile(new URL('./'+name+'-domain.mjs',import.meta.url),'// Generated from shared/'+name+'.ts.\n'+ts.transpileModule(input,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText);
+}

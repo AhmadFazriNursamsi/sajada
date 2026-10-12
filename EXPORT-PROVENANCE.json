@@ -1,0 +1,16 @@
+{
+  "project": "Sajada",
+  "version": "0.42",
+  "source_commit": "9a298598a3b98a3600d7320abb84b0f02b2eaacb",
+  "excluded_categories": [
+    "all node_modules",
+    "build outputs",
+    "git metadata",
+    "runtime state",
+    "private keys",
+    ".env secrets",
+    "tsbuildinfo"
+  ],
+  "host_identity": "private Site project_id removed",
+  "github_pushed": false
+}

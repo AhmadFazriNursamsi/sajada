@@ -1,0 +1,1 @@
+{"name":"sajada-db-tests","private":true,"type":"module","scripts":{"test":"node --test numbering.test.mjs http-orders.test.mjs profit.test.mjs approval-upgrade.test.mjs inventory.test.mjs"},"devDependencies":{"@electric-sql/pglite":"0.5.8"}}

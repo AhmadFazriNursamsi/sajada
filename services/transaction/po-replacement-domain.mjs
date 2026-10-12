@@ -1,0 +1,68 @@
+// Generated from shared/po-replacement.ts.
+export function validateReplacements(s) {
+    const records = s.replacements || [];
+    if (!Array.isArray(records))
+        throw Error('Riwayat penggantian tidak valid.');
+    const reversals = s.replacementReversals || [];
+    if (!Array.isArray(reversals))
+        throw Error('Riwayat pembatalan tidak valid.');
+    const reversed = new Set(), reversalIds = new Set();
+    for (const v of reversals) {
+        for (const [value, max] of [[v.id, 100], [v.reason, 1000], [v.actor, 200]])
+            if (typeof value !== 'string' || !value.trim() || value.length > max)
+                throw Error('Alasan dan audit pembatalan wajib diisi.');
+        const original = records.find(x => x.id === v.replacementId);
+        if (!original || reversalIds.has(v.id) || reversed.has(v.replacementId) || !Number.isFinite(Date.parse(v.at)) || Date.parse(v.at) < Date.parse(original.at))
+            throw Error('Pembatalan tidak valid atau alokasi sudah dibatalkan.');
+        reversalIds.add(v.id);
+        reversed.add(v.replacementId);
+    }
+    const ids = new Set(), refs = new Set(), byCase = new Map(), byReceipt = new Map();
+    for (const x of records) {
+        for (const [v, max] of [[x.id, 100], [x.reference, 100], [x.note, 1000], [x.actor, 200]])
+            if (typeof v !== 'string' || !v.trim() || v.length > max)
+                throw Error('Referensi/catatan/aktor penggantian wajib diisi.');
+        if (ids.has(x.id))
+            throw Error('ID penggantian berulang.');
+        ids.add(x.id);
+        const key = JSON.stringify([x.inspectionId, x.reference.trim().toLowerCase()]);
+        if (refs.has(key))
+            throw Error('Referensi penggantian sudah dipakai pada kasus ini.');
+        refs.add(key);
+        const q = s.inspections?.find(q => q.id === x.inspectionId), r = s.receipts.find(r => r.id === x.receiptId);
+        if (!q || !Number.isSafeInteger(q.rejected) || q.rejected < 1 || !r || !Number.isSafeInteger(r.quantity) || r.quantity < 1 || !Number.isFinite(Date.parse(q.at)) || !Number.isFinite(Date.parse(r.at)) || r.orderId !== q.orderId || r.id === q.receiptId || !Number.isFinite(Date.parse(x.at)) || Date.parse(r.at) <= Date.parse(q.at) || Date.parse(x.at) < Date.parse(r.at))
+            throw Error('Penggantian harus memakai penerimaan PO yang sama setelah penolakan.');
+        if (!Number.isSafeInteger(x.quantity) || x.quantity < 1 || x.quantity > 1e9 || x.quantity > q.rejected || x.quantity > r.quantity)
+            throw Error('Jumlah penggantian harus unit bulat positif.');
+        if (reversed.has(x.id))
+            continue;
+        const a = (byCase.get(q.id) || 0) + x.quantity, b = (byReceipt.get(r.id) || 0) + x.quantity;
+        if (a > q.rejected || b > r.quantity)
+            throw Error('Penggantian melebihi penolakan atau kapasitas penerimaan yang belum dialokasikan.');
+        byCase.set(q.id, a);
+        byReceipt.set(r.id, b);
+    }
+    const historicalCase = new Map(), historicalReceipt = new Map();
+    const events = [...records.map((x, i) => ({ x, at: x.at, rank: i * 2, undo: false })), ...reversals.map(v => ({ x: records.find(x => x.id === v.replacementId), at: v.at, rank: records.findIndex(x => x.id === v.replacementId) * 2 + 1, undo: true }))].sort((a, b) => Date.parse(a.at) - Date.parse(b.at) || a.rank - b.rank);
+    for (const event of events) {
+        const x = event.x, delta = event.undo ? -x.quantity : x.quantity, a = (historicalCase.get(x.inspectionId) || 0) + delta, b = (historicalReceipt.get(x.receiptId) || 0) + delta, q = s.inspections.find(q => q.id === x.inspectionId), r = s.receipts.find(r => r.id === x.receiptId);
+        if (a < 0 || b < 0 || a > q.rejected || b > r.quantity)
+            throw Error('Riwayat alokasi melebihi kapasitas pada waktu pencatatan.');
+        historicalCase.set(x.inspectionId, a);
+        historicalReceipt.set(x.receiptId, b);
+    }
+    return { byCase, byReceipt };
+}
+export function linkReplacement(s, input, actor, at) { const old = s.replacements?.find(x => x.id === input.id); if (old) {
+    if (['inspectionId', 'receiptId', 'quantity', 'reference', 'note'].some(k => old[k] !== input[k]))
+        throw Error('ID penggantian dipakai untuk data berbeda.');
+    return s;
+} if ((s.replacementReversals || []).some(x => Date.parse(at) < Date.parse(x.at)))
+    throw Error('Alokasi baru tidak boleh mendahului koreksi terakhir.'); const next = { ...s, replacements: [...(s.replacements || []), { ...input, actor, at }] }; validateReplacements(next); return next; }
+export function rejectionCases(s) { const { byCase, byReceipt } = validateReplacements(s); return (s.inspections || []).filter(q => q.rejected > 0).map(q => { const po = s.orders.find(o => o.id === q.orderId); if (!po)
+    throw Error('PO kasus penolakan tidak ditemukan.'); const replaced = byCase.get(q.id) || 0; return { inspection: q, po, replaced, remaining: q.rejected - replaced, candidates: s.receipts.filter(r => r.orderId === q.orderId && r.id !== q.receiptId && Date.parse(r.at) > Date.parse(q.at) && r.quantity > (byReceipt.get(r.id) || 0)).map(r => ({ receipt: r, available: r.quantity - (byReceipt.get(r.id) || 0) })) }; }); }
+export function reverseReplacement(s, input, actor, at) { const old = s.replacementReversals?.find(x => x.id === input.id); if (old) {
+    if (old.replacementId !== input.replacementId || old.reason !== input.reason)
+        throw Error('ID pembatalan dipakai untuk data berbeda.');
+    return s;
+} const next = { ...s, replacementReversals: [...(s.replacementReversals || []), { ...input, actor, at }] }; validateReplacements(next); return next; }

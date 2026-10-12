@@ -1,0 +1,363 @@
+erDiagram
+  direction TB
+  capital_account {
+    uuid tenant_id
+    uuid member_id
+    bpchar currency
+    int8 initial_principal
+    int8 remaining_principal
+    int8 post_recovery_profit
+    jsonb funding
+    text funding_reference
+    text created_by
+    timestamptz created_at
+    varchar last_period
+  }
+  capital_wallet_activation {
+    uuid tenant_id
+    uuid id
+    uuid member_id
+    int8 amount
+    int8 fee_amount
+    jsonb fees
+    text reference
+    text actor
+    timestamptz at
+    uuid journal_id
+  }
+  capital_wallet_payment {
+    uuid tenant_id
+    uuid id
+    uuid member_id
+    uuid order_id
+    uuid activation_id
+    uuid journal_id
+    int8 amount
+    text reference
+    text actor
+    timestamptz at
+  }
+  capital_wallet_refund {
+    uuid tenant_id
+    uuid id
+    uuid payment_id
+    uuid order_id
+    uuid member_id
+    uuid journal_id
+    int8 amount
+    text reference
+    text reason
+    text actor
+    timestamptz at
+  }
+  inventory_balance {
+    uuid tenant_id
+    uuid location_id
+    uuid product_id
+    int8 on_hand
+    int8 reserved
+    int8 minimum
+  }
+  inventory_config {
+    uuid tenant_id
+    uuid opening_location_id
+    text activated_by
+    timestamptz activated_at
+  }
+  inventory_document {
+    uuid tenant_id
+    uuid id
+    uuid location_id
+    uuid product_id
+    jsonb data
+    text request_payload
+  }
+  inventory_location {
+    uuid tenant_id
+    uuid id
+    text name
+    text kind
+    uuid parent_id
+    text region_id
+    uuid member_id
+    text created_by
+    timestamptz created_at
+  }
+  inventory_movement {
+    uuid tenant_id
+    text id
+    uuid document_id
+    uuid location_id
+    uuid product_id
+    int8 physical_delta
+    int8 reserved_delta
+    int8 after_physical
+    int8 after_reserved
+    text actor
+    timestamptz occurred_at
+  }
+  investor {
+    uuid tenant_id
+    uuid id
+    text name
+  }
+  journal {
+    uuid tenant_id
+    uuid id
+    text reference
+    date effective_date
+    text status
+  }
+  journal_line {
+    uuid tenant_id
+    uuid journal_id
+    int4 line_no
+    text account_code
+    numeric debit_base
+    numeric credit_base
+  }
+  member {
+    uuid tenant_id
+    uuid id
+    text name
+    text region_id
+    uuid sponsor_id
+    text status
+    timestamptz created_at
+  }
+  member_number {
+    uuid tenant_id
+    uuid member_id
+    varchar number
+    int4 issue_year
+    int4 sequence_no
+    varchar province_code
+    varchar regency_code
+    varchar district_code
+    timestamptz issued_at
+    text issued_by
+  }
+  member_number_counter {
+    uuid tenant_id
+    int4 issue_year
+    int4 last_value
+  }
+  order_item {
+    uuid tenant_id
+    uuid order_id
+    int4 line_no
+    uuid product_id
+    numeric quantity
+    numeric unit_price
+  }
+  outbox {
+    uuid tenant_id
+    uuid event_id
+    uuid aggregate_id
+    text event_type
+    int4 schema_version
+    jsonb payload
+    timestamptz occurred_at
+    timestamptz published_at
+  }
+  product {
+    uuid tenant_id
+    uuid id
+    text sku
+    text name
+    bpchar currency
+    numeric unit_price
+    numeric stock
+  }
+  profit_report {
+    uuid tenant_id
+    uuid id
+    uuid member_id
+    varchar period
+    int8 revenue
+    int8 cost
+    text status
+    text request_key
+    text request_hash
+    jsonb result
+    text created_by
+    timestamptz created_at
+    text settled_by
+    timestamptz settled_at
+    text settlement_reference
+    text cancelled_by
+    timestamptz cancelled_at
+    text cancellation_reference
+    text cancellation_reason
+    uuid replaces_report_id
+    text approved_by
+    timestamptz approved_at
+    text approval_reference
+  }
+  purchase_confirmation {
+    uuid tenant_id
+    uuid id
+    uuid order_id
+    int4 revision
+    jsonb data
+  }
+  purchase_inspection {
+    uuid tenant_id
+    uuid id
+    uuid order_id
+    uuid receipt_id
+    jsonb data
+  }
+  purchase_invoice {
+    uuid tenant_id
+    uuid id
+    uuid receipt_id
+    uuid po_id
+    uuid journal_id
+    jsonb data
+  }
+  purchase_order {
+    uuid tenant_id
+    uuid id
+    uuid location_id
+    uuid product_id
+    jsonb data
+    uuid supplier_id
+  }
+  purchase_payment {
+    uuid tenant_id
+    uuid id
+    uuid invoice_id
+    uuid journal_id
+    jsonb data
+  }
+  purchase_receipt {
+    uuid tenant_id
+    uuid id
+    uuid order_id
+    jsonb data
+  }
+  purchase_replacement {
+    uuid tenant_id
+    uuid id
+    uuid inspection_id
+    uuid receipt_id
+    int8 quantity
+    jsonb data
+  }
+  purchase_replacement_reversal {
+    uuid tenant_id
+    uuid id
+    uuid replacement_id
+    jsonb data
+  }
+  purchase_supplier {
+    uuid tenant_id
+    uuid id
+    jsonb data
+  }
+  region {
+    text id
+    text parent_id
+    text kind
+    text name
+    varchar local_code
+  }
+  reorder_policy {
+    uuid tenant_id
+    uuid location_id
+    uuid product_id
+    jsonb data
+    uuid supplier_id
+  }
+  sales_order {
+    uuid tenant_id
+    uuid id
+    uuid member_id
+    bpchar currency
+    bpchar base_currency
+    numeric fx_rate
+    numeric total
+    numeric total_base
+    text status
+    text idempotency_key
+    timestamptz created_at
+    text request_hash
+    uuid inventory_location_id
+    timestamptz cancelled_at
+    text cancelled_by
+    text cancel_reason
+    timestamptz dispatched_at
+    text dispatched_by
+    text dispatch_reference
+    timestamptz received_at
+    text received_by
+    text receipt_reference
+    text receiver_name
+  }
+  tenant {
+    uuid id
+    text name
+    bpchar base_currency
+  }
+  member ||--o{ capital_account : "capital_account_tenant_id_member_id_fkey"
+  journal ||--o{ capital_wallet_activation : "capital_wallet_activation_tenant_id_journal_id_fkey"
+  capital_account ||--o{ capital_wallet_activation : "capital_wallet_activation_tenant_id_member_id_fkey"
+  capital_wallet_activation ||--o{ capital_wallet_payment : "capital_wallet_payment_tenant_id_activation_id_fkey"
+  journal ||--o{ capital_wallet_payment : "capital_wallet_payment_tenant_id_journal_id_fkey"
+  capital_account ||--o{ capital_wallet_payment : "capital_wallet_payment_tenant_id_member_id_fkey"
+  sales_order ||--o{ capital_wallet_payment : "capital_wallet_payment_tenant_id_order_id_fkey"
+  journal ||--o{ capital_wallet_refund : "capital_wallet_refund_tenant_id_journal_id_fkey"
+  capital_account ||--o{ capital_wallet_refund : "capital_wallet_refund_tenant_id_member_id_fkey"
+  sales_order ||--o{ capital_wallet_refund : "capital_wallet_refund_tenant_id_order_id_fkey"
+  capital_wallet_payment ||--o{ capital_wallet_refund : "capital_wallet_refund_tenant_id_payment_id_fkey"
+  inventory_location ||--o{ inventory_balance : "inventory_balance_tenant_id_location_id_fkey"
+  product ||--o{ inventory_balance : "inventory_balance_tenant_id_product_id_fkey"
+  tenant ||--o{ inventory_config : "inventory_config_tenant_id_fkey"
+  inventory_location ||--o{ inventory_config : "inventory_config_tenant_id_opening_location_id_fkey"
+  inventory_location ||--o{ inventory_document : "inventory_document_tenant_id_location_id_fkey"
+  product ||--o{ inventory_document : "inventory_document_tenant_id_product_id_fkey"
+  region ||--o{ inventory_location : "inventory_location_region_id_fkey"
+  tenant ||--o{ inventory_location : "inventory_location_tenant_id_fkey"
+  member ||--o{ inventory_location : "inventory_location_tenant_id_member_id_fkey"
+  inventory_location ||--o{ inventory_location : "inventory_location_tenant_id_parent_id_fkey"
+  inventory_document ||--o{ inventory_movement : "inventory_movement_tenant_id_document_id_fkey"
+  inventory_balance ||--o{ inventory_movement : "inventory_movement_tenant_id_location_id_product_id_fkey"
+  tenant ||--o{ investor : "investor_tenant_id_fkey"
+  tenant ||--o{ journal : "journal_tenant_id_fkey"
+  journal ||--o{ journal_line : "journal_line_tenant_id_journal_id_fkey"
+  region ||--o{ member : "member_region_id_fkey"
+  tenant ||--o{ member : "member_tenant_id_fkey"
+  member ||--o{ member : "member_tenant_id_sponsor_id_fkey"
+  member ||--o{ member_number : "member_number_tenant_id_member_id_fkey"
+  tenant ||--o{ member_number_counter : "member_number_counter_tenant_id_fkey"
+  sales_order ||--o{ order_item : "order_item_tenant_id_order_id_fkey"
+  product ||--o{ order_item : "order_item_tenant_id_product_id_fkey"
+  tenant ||--o{ outbox : "outbox_tenant_id_fkey"
+  tenant ||--o{ product : "product_tenant_id_fkey"
+  profit_report ||--o{ profit_report : "profit_replacement_fk"
+  capital_account ||--o{ profit_report : "profit_report_tenant_id_member_id_fkey"
+  purchase_order ||--o{ purchase_confirmation : "purchase_confirmation_tenant_id_order_id_fkey"
+  purchase_order ||--o{ purchase_inspection : "purchase_inspection_tenant_id_order_id_fkey"
+  purchase_receipt ||--o{ purchase_inspection : "purchase_inspection_tenant_id_receipt_id_fkey"
+  journal ||--o{ purchase_invoice : "purchase_invoice_tenant_id_journal_id_fkey"
+  purchase_order ||--o{ purchase_invoice : "purchase_invoice_tenant_id_po_id_fkey"
+  purchase_receipt ||--o{ purchase_invoice : "purchase_invoice_tenant_id_receipt_id_fkey"
+  inventory_location ||--o{ purchase_order : "purchase_order_tenant_id_location_id_fkey"
+  product ||--o{ purchase_order : "purchase_order_tenant_id_product_id_fkey"
+  purchase_supplier ||--o{ purchase_order : "purchase_order_tenant_id_supplier_id_fkey"
+  purchase_invoice ||--o{ purchase_payment : "purchase_payment_tenant_id_invoice_id_fkey"
+  journal ||--o{ purchase_payment : "purchase_payment_tenant_id_journal_id_fkey"
+  inventory_document ||--o{ purchase_receipt : "purchase_receipt_tenant_id_id_fkey"
+  purchase_order ||--o{ purchase_receipt : "purchase_receipt_tenant_id_order_id_fkey"
+  purchase_inspection ||--o{ purchase_replacement : "purchase_replacement_tenant_id_inspection_id_fkey"
+  purchase_receipt ||--o{ purchase_replacement : "purchase_replacement_tenant_id_receipt_id_fkey"
+  purchase_replacement ||--o{ purchase_replacement_reversal : "purchase_replacement_reversal_tenant_id_replacement_id_fkey"
+  tenant ||--o{ purchase_supplier : "purchase_supplier_tenant_id_fkey"
+  region ||--o{ region : "region_parent_id_fkey"
+  inventory_location ||--o{ reorder_policy : "reorder_policy_tenant_id_location_id_fkey"
+  product ||--o{ reorder_policy : "reorder_policy_tenant_id_product_id_fkey"
+  purchase_supplier ||--o{ reorder_policy : "reorder_policy_tenant_id_supplier_id_fkey"
+  inventory_location ||--o{ sales_order : "order_inventory_location_fk"
+  tenant ||--o{ sales_order : "sales_order_tenant_id_fkey"
+  member ||--o{ sales_order : "sales_order_tenant_id_member_id_fkey"

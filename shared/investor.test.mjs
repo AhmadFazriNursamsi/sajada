@@ -1,0 +1,6 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {investorSummary} from './investor.ts';import {allocateTiered,initialTierState} from './tiered-sharing.ts';
+const row={...allocateTiered(10000000,initialTierState()),id:'1',member:'A',period:'2026-10',status:'settled'};
+test('unfunded allocation excluded from investor outstanding capital',()=>{const s=investorSummary(['A','B'],{A:{status:'disbursed'}},[row]);assert.equal(s.allocated,25000000);assert.equal(s.funded,12500000);assert.equal(s.remaining,4500000);assert.equal(s.unfunded,12500000);});
+test('pending reports excluded from payment summaries',()=>{const s=investorSummary(['A'],{A:{status:'disbursed'}},[{...row,status:'pending'}]);assert.equal(s.returned,0);assert.equal(s.investorShare,0);});
+test('period filter affects flows not current capital balance',()=>{const s=investorSummary(['A'],{A:{status:'disbursed'}},[row],'2026-11');assert.equal(s.investorShare,0);assert.equal(s.remaining,4500000);});
+test('investor receipt separates principal and profit',()=>{const r={...row,...allocateTiered(30000000,initialTierState())};const s=investorSummary(['A'],{A:{status:'disbursed'}},[r]);assert.equal(s.investorShare,s.capitalReturned+s.investorProfit);assert.equal(s.investorProfit,10562500);});
