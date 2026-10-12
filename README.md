@@ -4,7 +4,7 @@ Paket source v0.42. Satu aplikasi Next.js (web React + API transaksi `/v1/*` pad
 
 ## Status implementasi
 
-Web yang tersedia adalah demo tenant-local dalam localStorage. API PostgreSQL berjalan dalam aplikasi Next.js yang sama, tetapi halaman web belum memanggilnya. Portal toko anggota mandiri, pencairan hasil penjualan nyata, self-service JWT anggota, backend FX/MLM lengkap, dan refund setelah pengiriman belum aktif. Komponen Redis/Kafka/Keycloak yang dibahas pada blueprint belum seluruhnya diimplementasikan. Mobile berupa starter, belum APK/IPA.
+Seluruh data web (anggota, katalog, pesanan, stok, PO, modal, investor, bagi hasil, komisi, wilayah, buku besar) disimpan di PostgreSQL per koperasi; localStorage tidak dipakai lagi. Web belum mempunyai login: fungsi server web hanya melayani komputer lokal (`SAJADA_LOCAL_MODE=1`, host 127.0.0.1). Aturan bisnis web tetap seperti demo; aktivasi saldo, bagi hasil, dan tagihan pemasok dari web belum membuat jurnal/persetujuan seperti modul akuntansi API `/v1`. Portal toko anggota mandiri, pencairan hasil penjualan nyata, self-service JWT anggota, backend FX/MLM lengkap, dan refund setelah pengiriman belum aktif. Komponen Redis/Kafka/Keycloak yang dibahas pada blueprint belum seluruhnya diimplementasikan. Mobile berupa starter, belum APK/IPA.
 
 Penyertaan anggota Rp12,5 juta terdiri dari Rp10 juta saldo belanja koperasi + Rp2,5 juta iuran/admin/lainnya yang rinciannya dapat dikonfigurasi. Dasar recovery investor tetap Rp12,5 juta; bagi hasil bertingkat mengikuti keputusan sebelumnya. Saldo hanya untuk pesanan koperasi dan refund penuh sebelum pengiriman; tidak ada tarik tunai/transfer eksternal.
 
@@ -27,24 +27,29 @@ Gunakan Node.js 22.13+ dan pnpm sesuai `packageManager`, serta Docker untuk Post
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm dev:all     # PostgreSQL (Docker) + Next.js di http://127.0.0.1:5173
-pnpm dev         # hanya Next.js (web + API), jika PostgreSQL sudah berjalan
+pnpm db:setup    # sekali: PostgreSQL (Docker), role aplikasi, .env.local, data demo
+pnpm dev:all     # PostgreSQL + Next.js di http://127.0.0.1:5173
+pnpm dev         # hanya Next.js, jika PostgreSQL sudah berjalan
 pnpm build && pnpm start   # mode production di port 5173
 ```
+
+`pnpm db:setup` aman dijalankan ulang: password di `services/.env`, isi `.env.local`, dan data yang sudah ada dipertahankan. `pnpm db:seed` hanya mengisi koperasi demo yang belum ada.
 
 Web dan API berjalan dalam satu proses Next.js:
 
 | Path | Isi |
 |---|---|
-| `/` | Web (demo, data di localStorage browser) |
+| `/` | Web; data dimuat/disimpan lewat server function `app/actions/workspace.ts` |
 | `/v1/*` | API transaksi (`app/v1/[...path]/route.ts` → `lib/transaction-api.ts` → handler `services/transaction/server.mjs`) |
 | `/healthz` | Status API |
 
-Konfigurasi API dibaca dari `.env.local` (tidak di-commit): `DATABASE_URL` untuk role aplikasi non-owner, `OIDC_JWKS_URL`, `OIDC_ISSUER`, `OIDC_AUDIENCE`. Tanpa konfigurasi tersebut `/v1/*` dan `/healthz` menjawab 503; web tetap berjalan.
+Penyimpanan web (`lib/workspace-store.ts` → `lib/server/workspace/`): setiap simpan memvalidasi seluruh data koperasi dengan aturan backup (`shared/backup.ts`) lalu menulis perubahan ke tabel relasional dalam satu transaksi dengan RLS per koperasi. Riwayat (pesanan, kartu stok, PO, nomor anggota) tidak dapat dihapus atau diubah lewat simpan biasa. Bila koperasi sudah diubah di tab/perangkat lain, simpan ditolak dan data terbaru dimuat ulang. Reset demo dan pemulihan backup memakai fungsi `sajada.web_clear_workspace`, yang hanya diberikan ke role lokal dan ditolak bila API sudah mencatat jurnal/modal untuk koperasi tersebut.
+
+Konfigurasi dibaca dari `.env.local` (tidak di-commit): `DATABASE_URL` untuk role aplikasi non-owner, `SAJADA_LOCAL_MODE=1`, serta `OIDC_JWKS_URL`, `OIDC_ISSUER`, `OIDC_AUDIENCE` untuk `/v1/*`. Tanpa `DATABASE_URL`/OIDC, `/v1/*` dan `/healthz` menjawab 503.
 
 ## PostgreSQL dan ClickHouse
 
-Lihat [panduan database](docs/DATABASE.md). `services/compose.yaml` menyediakan database lokal dan 20 tahap initialization PostgreSQL, hanya saat volume masih kosong. Password harus diberikan melalui environment Anda. Jangan menghapus volume data yang masih diperlukan.
+Lihat [panduan database](docs/DATABASE.md). `services/compose.yaml` menyediakan database lokal dan 23 tahap initialization PostgreSQL, hanya saat volume masih kosong. Password harus diberikan melalui environment Anda. Jangan menghapus volume data yang masih diperlukan.
 
 API berjalan di dalam Next.js (lihat di atas). `services/transaction/server.mjs` masih dapat dijalankan mandiri (`npm start` di folder itu) dan dipakai oleh pengujian HTTP. Contoh variabel tanpa rahasia tersedia di `.env.example`.
 
@@ -58,7 +63,9 @@ cd services/transaction && npm ci && npm test
 cd ../db-tests && npm ci && npm test
 ```
 
-HTTP test membutuhkan dependency jose dari services/transaction. Node 24 mendukung pembacaan file TypeScript pada test domain. Pengujian terakhir mencakup 441 test dari shared + HTTP orders + inventory + profit; suite lain juga disertakan. Database memakai PGlite embedded, bukan pembuktian konkurensi native PostgreSQL. Browser, Docker runtime, ClickHouse live, OIDC produksi dan perangkat mobile belum diverifikasi.
+HTTP test membutuhkan dependency jose dari services/transaction. Node 24 mendukung pembacaan file TypeScript pada test domain. `services/db-tests/web-workspace.test.mjs` menguji penyimpanan web (semua bagian data, RLS antar-koperasi, perlindungan riwayat, reset dan pemulihan backup) pada PGlite. Hasil terakhir: 233 test shared, 4 test transaction, 231 test db-tests. Database memakai PGlite embedded, bukan pembuktian konkurensi native PostgreSQL. ClickHouse live, OIDC produksi dan perangkat mobile belum diverifikasi.
+
+`node database-docs.mjs` (di `services/db-tests`) membangun ulang `database/postgresql-full-schema.sql`, `schema-dictionary.json` dan `erd.mmd` dari `database/migrations.json`; `--check` memeriksa apakah file tersebut masih sesuai.
 
 ## GitHub
 

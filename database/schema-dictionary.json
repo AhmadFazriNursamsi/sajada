@@ -1139,6 +1139,15 @@
           "is_nullable": "NO",
           "column_default": "5",
           "ordinal_position": 6
+        },
+        {
+          "table_name": "inventory_balance",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
         }
       ],
       "constraints": [
@@ -1195,6 +1204,12 @@
           "name": "inventory_balance_reserved_not_null",
           "type": "n",
           "definition": "NOT NULL reserved"
+        },
+        {
+          "table_name": "inventory_balance",
+          "name": "inventory_balance_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "inventory_balance",
@@ -1397,6 +1412,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 6
+        },
+        {
+          "table_name": "inventory_document",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
         }
       ],
       "constraints": [
@@ -1441,6 +1465,12 @@
           "name": "inventory_document_request_payload_not_null",
           "type": "n",
           "definition": "NOT NULL request_payload"
+        },
+        {
+          "table_name": "inventory_document",
+          "name": "inventory_document_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "inventory_document",
@@ -1543,7 +1573,7 @@
           "column_name": "region_id",
           "data_type": "text",
           "udt_name": "text",
-          "is_nullable": "NO",
+          "is_nullable": "YES",
           "column_default": null,
           "ordinal_position": 6
         },
@@ -1573,6 +1603,24 @@
           "is_nullable": "NO",
           "column_default": "now()",
           "ordinal_position": 9
+        },
+        {
+          "table_name": "inventory_location",
+          "column_name": "region_label",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "inventory_location",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 11
         }
       ],
       "constraints": [
@@ -1650,9 +1698,21 @@
         },
         {
           "table_name": "inventory_location",
-          "name": "inventory_location_region_id_not_null",
+          "name": "inventory_location_region_label_check",
+          "type": "c",
+          "definition": "CHECK (((length(btrim(region_label)) >= 1) AND (length(btrim(region_label)) <= 200)))"
+        },
+        {
+          "table_name": "inventory_location",
+          "name": "inventory_location_region_present",
+          "type": "c",
+          "definition": "CHECK (((region_id IS NOT NULL) OR (region_label IS NOT NULL)))"
+        },
+        {
+          "table_name": "inventory_location",
+          "name": "inventory_location_seq_not_null",
           "type": "n",
-          "definition": "NOT NULL region_id"
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "inventory_location",
@@ -1820,6 +1880,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 11
+        },
+        {
+          "table_name": "inventory_movement",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 12
         }
       ],
       "constraints": [
@@ -1903,6 +1972,12 @@
         },
         {
           "table_name": "inventory_movement",
+          "name": "inventory_movement_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "inventory_movement",
           "name": "inventory_movement_tenant_id_document_id_fkey",
           "type": "f",
           "definition": "FOREIGN KEY (tenant_id, document_id) REFERENCES sajada.inventory_document(tenant_id, id)"
@@ -1978,9 +2053,33 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 3
+        },
+        {
+          "table_name": "investor",
+          "column_name": "code",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "investor",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
         }
       ],
       "constraints": [
+        {
+          "table_name": "investor",
+          "name": "investor_code_check",
+          "type": "c",
+          "definition": "CHECK (((length(btrim(code)) >= 1) AND (length(btrim(code)) <= 150)))"
+        },
         {
           "table_name": "investor",
           "name": "investor_id_not_null",
@@ -2007,6 +2106,12 @@
         },
         {
           "table_name": "investor",
+          "name": "investor_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "investor",
           "name": "investor_tenant_id_fkey",
           "type": "f",
           "definition": "FOREIGN KEY (tenant_id) REFERENCES sajada.tenant(id)"
@@ -2023,6 +2128,11 @@
           "table_name": "investor",
           "name": "investor_pkey",
           "definition": "CREATE UNIQUE INDEX investor_pkey ON sajada.investor USING btree (tenant_id, id)"
+        },
+        {
+          "table_name": "investor",
+          "name": "investor_tenant_code",
+          "definition": "CREATE UNIQUE INDEX investor_tenant_code ON sajada.investor USING btree (tenant_id, code) WHERE (code IS NOT NULL)"
         }
       ],
       "policies": [
@@ -2395,9 +2505,75 @@
           "is_nullable": "NO",
           "column_default": "now()",
           "ordinal_position": 7
+        },
+        {
+          "table_name": "member",
+          "column_name": "initials",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": "''::text",
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "member",
+          "column_name": "area",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": "''::text",
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "member",
+          "column_name": "level",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": "'Bronze'::text",
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "member",
+          "column_name": "reported_sales",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": "0",
+          "ordinal_position": 11
+        },
+        {
+          "table_name": "member",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "table_name": "member",
+          "column_name": "network_seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 13
         }
       ],
       "constraints": [
+        {
+          "table_name": "member",
+          "name": "member_area_check",
+          "type": "c",
+          "definition": "CHECK ((length(area) <= 500))"
+        },
+        {
+          "table_name": "member",
+          "name": "member_area_not_null",
+          "type": "n",
+          "definition": "NOT NULL area"
+        },
         {
           "table_name": "member",
           "name": "member_check",
@@ -2418,6 +2594,30 @@
         },
         {
           "table_name": "member",
+          "name": "member_initials_check",
+          "type": "c",
+          "definition": "CHECK ((length(initials) <= 500))"
+        },
+        {
+          "table_name": "member",
+          "name": "member_initials_not_null",
+          "type": "n",
+          "definition": "NOT NULL initials"
+        },
+        {
+          "table_name": "member",
+          "name": "member_level_check",
+          "type": "c",
+          "definition": "CHECK ((length(level) <= 500))"
+        },
+        {
+          "table_name": "member",
+          "name": "member_level_not_null",
+          "type": "n",
+          "definition": "NOT NULL level"
+        },
+        {
+          "table_name": "member",
           "name": "member_name_not_null",
           "type": "n",
           "definition": "NOT NULL name"
@@ -2433,6 +2633,24 @@
           "name": "member_region_id_fkey",
           "type": "f",
           "definition": "FOREIGN KEY (region_id) REFERENCES sajada.region(id)"
+        },
+        {
+          "table_name": "member",
+          "name": "member_reported_sales_check",
+          "type": "c",
+          "definition": "CHECK (((reported_sales >= 0) AND (reported_sales <= '1000000000000'::bigint)))"
+        },
+        {
+          "table_name": "member",
+          "name": "member_reported_sales_not_null",
+          "type": "n",
+          "definition": "NOT NULL reported_sales"
+        },
+        {
+          "table_name": "member",
+          "name": "member_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "member",
@@ -2464,6 +2682,11 @@
           "table_name": "member",
           "name": "member_pkey",
           "definition": "CREATE UNIQUE INDEX member_pkey ON sajada.member USING btree (tenant_id, id)"
+        },
+        {
+          "table_name": "member",
+          "name": "member_tenant_name",
+          "definition": "CREATE UNIQUE INDEX member_tenant_name ON sajada.member USING btree (tenant_id, lower(name))"
         }
       ],
       "policies": [
@@ -2894,6 +3117,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 6
+        },
+        {
+          "table_name": "order_item",
+          "column_name": "name",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 7
         }
       ],
       "constraints": [
@@ -2902,6 +3134,12 @@
           "name": "order_item_line_no_not_null",
           "type": "n",
           "definition": "NOT NULL line_no"
+        },
+        {
+          "table_name": "order_item",
+          "name": "order_item_name_check",
+          "type": "c",
+          "definition": "CHECK ((length(name) <= 150))"
         },
         {
           "table_name": "order_item",
@@ -3203,14 +3441,101 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 7
+        },
+        {
+          "table_name": "product",
+          "column_name": "category",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": "''::text",
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "product",
+          "column_name": "emoji",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": "''::text",
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "product",
+          "column_name": "bg",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": "''::text",
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "product",
+          "column_name": "active",
+          "data_type": "boolean",
+          "udt_name": "bool",
+          "is_nullable": "NO",
+          "column_default": "true",
+          "ordinal_position": 11
+        },
+        {
+          "table_name": "product",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 12
         }
       ],
       "constraints": [
         {
           "table_name": "product",
+          "name": "product_active_not_null",
+          "type": "n",
+          "definition": "NOT NULL active"
+        },
+        {
+          "table_name": "product",
+          "name": "product_bg_check",
+          "type": "c",
+          "definition": "CHECK ((length(bg) <= 500))"
+        },
+        {
+          "table_name": "product",
+          "name": "product_bg_not_null",
+          "type": "n",
+          "definition": "NOT NULL bg"
+        },
+        {
+          "table_name": "product",
+          "name": "product_category_check",
+          "type": "c",
+          "definition": "CHECK ((length(category) <= 500))"
+        },
+        {
+          "table_name": "product",
+          "name": "product_category_not_null",
+          "type": "n",
+          "definition": "NOT NULL category"
+        },
+        {
+          "table_name": "product",
           "name": "product_currency_not_null",
           "type": "n",
           "definition": "NOT NULL currency"
+        },
+        {
+          "table_name": "product",
+          "name": "product_emoji_check",
+          "type": "c",
+          "definition": "CHECK ((length(emoji) <= 500))"
+        },
+        {
+          "table_name": "product",
+          "name": "product_emoji_not_null",
+          "type": "n",
+          "definition": "NOT NULL emoji"
         },
         {
           "table_name": "product",
@@ -3229,6 +3554,12 @@
           "name": "product_pkey",
           "type": "p",
           "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "product",
+          "name": "product_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "product",
@@ -3294,6 +3625,207 @@
       "policies": [
         {
           "table_name": "product",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "product_stock_move",
+      "columns": [
+        {
+          "table_name": "product_stock_move",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "product_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "product_name",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "delta",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "after",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "date",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "product_stock_move",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 9
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_after_check",
+          "type": "c",
+          "definition": "CHECK ((after >= 0))"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_after_not_null",
+          "type": "n",
+          "definition": "NOT NULL after"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_date_check",
+          "type": "c",
+          "definition": "CHECK ((length(date) <= 40))"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_date_not_null",
+          "type": "n",
+          "definition": "NOT NULL date"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_delta_not_null",
+          "type": "n",
+          "definition": "NOT NULL delta"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_product_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL product_id"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_product_name_check",
+          "type": "c",
+          "definition": "CHECK ((length(product_name) <= 500))"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_product_name_not_null",
+          "type": "n",
+          "definition": "NOT NULL product_name"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_reference_check",
+          "type": "c",
+          "definition": "CHECK ((length(reference) <= 500))"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_reference_not_null",
+          "type": "n",
+          "definition": "NOT NULL reference"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_tenant_id_product_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, product_id) REFERENCES sajada.product(tenant_id, id)"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "product_stock_move",
+          "name": "product_stock_move_pkey",
+          "definition": "CREATE UNIQUE INDEX product_stock_move_pkey ON sajada.product_stock_move USING btree (tenant_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "product_stock_move",
           "name": "tenant_scope",
           "cmd": "ALL",
           "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
@@ -3766,6 +4298,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 5
+        },
+        {
+          "table_name": "purchase_confirmation",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
         }
       ],
       "constraints": [
@@ -3810,6 +4351,12 @@
           "name": "purchase_confirmation_revision_not_null",
           "type": "n",
           "definition": "NOT NULL revision"
+        },
+        {
+          "table_name": "purchase_confirmation",
+          "name": "purchase_confirmation_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_confirmation",
@@ -3916,6 +4463,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 5
+        },
+        {
+          "table_name": "purchase_inspection",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
         }
       ],
       "constraints": [
@@ -3948,6 +4504,12 @@
           "name": "purchase_inspection_pkey",
           "type": "p",
           "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "purchase_inspection",
+          "name": "purchase_inspection_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_inspection",
@@ -4276,6 +4838,15 @@
           "is_nullable": "YES",
           "column_default": null,
           "ordinal_position": 6
+        },
+        {
+          "table_name": "purchase_order",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
         }
       ],
       "constraints": [
@@ -4332,6 +4903,12 @@
           "name": "purchase_order_product_id_not_null",
           "type": "n",
           "definition": "NOT NULL product_id"
+        },
+        {
+          "table_name": "purchase_order",
+          "name": "purchase_order_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_order",
@@ -4603,6 +5180,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 4
+        },
+        {
+          "table_name": "purchase_receipt",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
         }
       ],
       "constraints": [
@@ -4629,6 +5215,12 @@
           "name": "purchase_receipt_pkey",
           "type": "p",
           "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "purchase_receipt",
+          "name": "purchase_receipt_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_receipt",
@@ -4735,6 +5327,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 6
+        },
+        {
+          "table_name": "purchase_replacement",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
         }
       ],
       "constraints": [
@@ -4779,6 +5380,12 @@
           "name": "purchase_replacement_receipt_id_not_null",
           "type": "n",
           "definition": "NOT NULL receipt_id"
+        },
+        {
+          "table_name": "purchase_replacement",
+          "name": "purchase_replacement_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_replacement",
@@ -4877,6 +5484,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 4
+        },
+        {
+          "table_name": "purchase_replacement_reversal",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
         }
       ],
       "constraints": [
@@ -4909,6 +5525,12 @@
           "name": "purchase_replacement_reversal_replacement_id_not_null",
           "type": "n",
           "definition": "NOT NULL replacement_id"
+        },
+        {
+          "table_name": "purchase_replacement_reversal",
+          "name": "purchase_replacement_reversal_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_replacement_reversal",
@@ -4992,6 +5614,15 @@
           "is_nullable": "NO",
           "column_default": null,
           "ordinal_position": 3
+        },
+        {
+          "table_name": "purchase_supplier",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
         }
       ],
       "constraints": [
@@ -5012,6 +5643,12 @@
           "name": "purchase_supplier_pkey",
           "type": "p",
           "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "purchase_supplier",
+          "name": "purchase_supplier_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "purchase_supplier",
@@ -5221,6 +5858,15 @@
           "is_nullable": "YES",
           "column_default": null,
           "ordinal_position": 5
+        },
+        {
+          "table_name": "reorder_policy",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
         }
       ],
       "constraints": [
@@ -5259,6 +5905,12 @@
           "name": "reorder_policy_product_id_not_null",
           "type": "n",
           "definition": "NOT NULL product_id"
+        },
+        {
+          "table_name": "reorder_policy",
+          "name": "reorder_policy_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "reorder_policy",
@@ -5512,6 +6164,51 @@
           "is_nullable": "YES",
           "column_default": null,
           "ordinal_position": 23
+        },
+        {
+          "table_name": "sales_order",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 24
+        },
+        {
+          "table_name": "sales_order",
+          "column_name": "order_date",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 25
+        },
+        {
+          "table_name": "sales_order",
+          "column_name": "paid_date",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 26
+        },
+        {
+          "table_name": "sales_order",
+          "column_name": "web",
+          "data_type": "jsonb",
+          "udt_name": "jsonb",
+          "is_nullable": "NO",
+          "column_default": "'{}'::jsonb",
+          "ordinal_position": 27
+        },
+        {
+          "table_name": "sales_order",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 28
         }
       ],
       "constraints": [
@@ -5589,9 +6286,33 @@
         },
         {
           "table_name": "sales_order",
+          "name": "sales_order_order_date_check",
+          "type": "c",
+          "definition": "CHECK ((length(order_date) <= 40))"
+        },
+        {
+          "table_name": "sales_order",
+          "name": "sales_order_paid_date_check",
+          "type": "c",
+          "definition": "CHECK ((length(paid_date) <= 40))"
+        },
+        {
+          "table_name": "sales_order",
           "name": "sales_order_pkey",
           "type": "p",
           "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "sales_order",
+          "name": "sales_order_reference_check",
+          "type": "c",
+          "definition": "CHECK (((length(btrim(reference)) >= 1) AND (length(btrim(reference)) <= 150)))"
+        },
+        {
+          "table_name": "sales_order",
+          "name": "sales_order_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
         },
         {
           "table_name": "sales_order",
@@ -5640,6 +6361,18 @@
           "name": "sales_order_total_not_null",
           "type": "n",
           "definition": "NOT NULL total"
+        },
+        {
+          "table_name": "sales_order",
+          "name": "sales_order_web_check",
+          "type": "c",
+          "definition": "CHECK ((jsonb_typeof(web) = 'object'::text))"
+        },
+        {
+          "table_name": "sales_order",
+          "name": "sales_order_web_not_null",
+          "type": "n",
+          "definition": "NOT NULL web"
         }
       ],
       "indexes": [
@@ -5657,6 +6390,11 @@
           "table_name": "sales_order",
           "name": "sales_order_pkey",
           "definition": "CREATE UNIQUE INDEX sales_order_pkey ON sajada.sales_order USING btree (tenant_id, id)"
+        },
+        {
+          "table_name": "sales_order",
+          "name": "sales_order_reference",
+          "definition": "CREATE UNIQUE INDEX sales_order_reference ON sajada.sales_order USING btree (tenant_id, reference) WHERE (reference IS NOT NULL)"
         },
         {
           "table_name": "sales_order",
@@ -5761,6 +6499,3113 @@
         }
       ],
       "policies": [],
+      "triggers": []
+    },
+    {
+      "table_name": "web_capital_deposit",
+      "columns": [
+        {
+          "table_name": "web_capital_deposit",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "column_name": "amount",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "column_name": "date",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "column_name": "note",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount > 0))"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_amount_not_null",
+          "type": "n",
+          "definition": "NOT NULL amount"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_date_not_null",
+          "type": "n",
+          "definition": "NOT NULL date"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_note_check",
+          "type": "c",
+          "definition": "CHECK ((length(note) <= 500))"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_note_not_null",
+          "type": "n",
+          "definition": "NOT NULL note"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_capital_deposit",
+          "name": "web_capital_deposit_pkey",
+          "definition": "CREATE UNIQUE INDEX web_capital_deposit_pkey ON sajada.web_capital_deposit USING btree (tenant_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_capital_deposit",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_capital_fee_plan",
+      "columns": [
+        {
+          "table_name": "web_capital_fee_plan",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "column_name": "member_dues",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "column_name": "admin_fee",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "column_name": "other",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "column_name": "note",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_admin_fee_check",
+          "type": "c",
+          "definition": "CHECK ((admin_fee >= 0))"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_admin_fee_not_null",
+          "type": "n",
+          "definition": "NOT NULL admin_fee"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_check",
+          "type": "c",
+          "definition": "CHECK ((((member_dues + admin_fee) + other) = 2500000))"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_member_dues_check",
+          "type": "c",
+          "definition": "CHECK ((member_dues >= 0))"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_member_dues_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_dues"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_note_check",
+          "type": "c",
+          "definition": "CHECK (((length(btrim(note)) >= 1) AND (length(btrim(note)) <= 1000)))"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_note_not_null",
+          "type": "n",
+          "definition": "NOT NULL note"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_other_check",
+          "type": "c",
+          "definition": "CHECK ((other >= 0))"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_other_not_null",
+          "type": "n",
+          "definition": "NOT NULL other"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id)"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_tenant_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id) REFERENCES sajada.tenant(id)"
+        },
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "web_capital_fee_plan_pkey",
+          "definition": "CREATE UNIQUE INDEX web_capital_fee_plan_pkey ON sajada.web_capital_fee_plan USING btree (tenant_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_capital_fee_plan",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_commission_audit",
+      "columns": [
+        {
+          "table_name": "web_commission_audit",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_commission_audit",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_commission_audit",
+          "column_name": "at",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_commission_audit",
+          "column_name": "action",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_commission_audit",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_commission_audit",
+          "column_name": "actor",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_action_check",
+          "type": "c",
+          "definition": "CHECK ((length(action) <= 500))"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_action_not_null",
+          "type": "n",
+          "definition": "NOT NULL action"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_actor_check",
+          "type": "c",
+          "definition": "CHECK ((length(actor) <= 500))"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_actor_not_null",
+          "type": "n",
+          "definition": "NOT NULL actor"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_at_check",
+          "type": "c",
+          "definition": "CHECK ((length(at) <= 40))"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_at_not_null",
+          "type": "n",
+          "definition": "NOT NULL at"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, seq)"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_reference_check",
+          "type": "c",
+          "definition": "CHECK ((length(reference) <= 500))"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_reference_not_null",
+          "type": "n",
+          "definition": "NOT NULL reference"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_commission_audit",
+          "name": "web_commission_audit_pkey",
+          "definition": "CREATE UNIQUE INDEX web_commission_audit_pkey ON sajada.web_commission_audit USING btree (tenant_id, seq)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_commission_audit",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_commission_correction",
+      "columns": [
+        {
+          "table_name": "web_commission_correction",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_commission_correction",
+          "column_name": "correction_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_commission_correction",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_commission_correction",
+          "name": "web_commission_correction_correction_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(correction_id) >= 1) AND (length(correction_id) <= 500)))"
+        },
+        {
+          "table_name": "web_commission_correction",
+          "name": "web_commission_correction_correction_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL correction_id"
+        },
+        {
+          "table_name": "web_commission_correction",
+          "name": "web_commission_correction_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, correction_id)"
+        },
+        {
+          "table_name": "web_commission_correction",
+          "name": "web_commission_correction_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_commission_correction",
+          "name": "web_commission_correction_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_commission_correction",
+          "name": "web_commission_correction_pkey",
+          "definition": "CREATE UNIQUE INDEX web_commission_correction_pkey ON sajada.web_commission_correction USING btree (tenant_id, correction_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_commission_correction",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_commission_delivered",
+      "columns": [
+        {
+          "table_name": "web_commission_delivered",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_commission_delivered",
+          "column_name": "order_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_commission_delivered",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_commission_delivered",
+          "name": "web_commission_delivered_order_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL order_id"
+        },
+        {
+          "table_name": "web_commission_delivered",
+          "name": "web_commission_delivered_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, order_id)"
+        },
+        {
+          "table_name": "web_commission_delivered",
+          "name": "web_commission_delivered_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_commission_delivered",
+          "name": "web_commission_delivered_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_commission_delivered",
+          "name": "web_commission_delivered_tenant_id_order_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, order_id) REFERENCES sajada.sales_order(tenant_id, id)"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_commission_delivered",
+          "name": "web_commission_delivered_pkey",
+          "definition": "CREATE UNIQUE INDEX web_commission_delivered_pkey ON sajada.web_commission_delivered USING btree (tenant_id, order_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_commission_delivered",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_commission_review",
+      "columns": [
+        {
+          "table_name": "web_commission_review",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_commission_review",
+          "column_name": "has_corrections",
+          "data_type": "boolean",
+          "udt_name": "bool",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_commission_review",
+          "name": "web_commission_review_has_corrections_not_null",
+          "type": "n",
+          "definition": "NOT NULL has_corrections"
+        },
+        {
+          "table_name": "web_commission_review",
+          "name": "web_commission_review_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id)"
+        },
+        {
+          "table_name": "web_commission_review",
+          "name": "web_commission_review_tenant_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id) REFERENCES sajada.tenant(id)"
+        },
+        {
+          "table_name": "web_commission_review",
+          "name": "web_commission_review_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_commission_review",
+          "name": "web_commission_review_pkey",
+          "definition": "CREATE UNIQUE INDEX web_commission_review_pkey ON sajada.web_commission_review USING btree (tenant_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_commission_review",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_commission_status",
+      "columns": [
+        {
+          "table_name": "web_commission_status",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_commission_status",
+          "column_name": "commission_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_commission_status",
+          "column_name": "status",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_commission_status",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_commission_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(commission_id) >= 1) AND (length(commission_id) <= 500)))"
+        },
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_commission_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL commission_id"
+        },
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, commission_id)"
+        },
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'paid'::text])))"
+        },
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_status_not_null",
+          "type": "n",
+          "definition": "NOT NULL status"
+        },
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_commission_status",
+          "name": "web_commission_status_pkey",
+          "definition": "CREATE UNIQUE INDEX web_commission_status_pkey ON sajada.web_commission_status USING btree (tenant_id, commission_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_commission_status",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_funding_allocation",
+      "columns": [
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "member_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "position",
+          "data_type": "integer",
+          "udt_name": "int4",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "investor_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "investor_name",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "amount",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount > 0))"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_amount_not_null",
+          "type": "n",
+          "definition": "NOT NULL amount"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_investor_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_id"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_investor_name_check",
+          "type": "c",
+          "definition": "CHECK ((length(investor_name) <= 150))"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_investor_name_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_name"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_member_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_id"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, member_id, \"position\")"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_position_check",
+          "type": "c",
+          "definition": "CHECK ((\"position\" >= 0))"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_position_not_null",
+          "type": "n",
+          "definition": "NOT NULL \"position\""
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_tenant_id_investor_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, investor_id) REFERENCES sajada.investor(tenant_id, id)"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_tenant_id_member_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, member_id) REFERENCES sajada.member(tenant_id, id)"
+        },
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_funding_allocation",
+          "name": "web_funding_allocation_pkey",
+          "definition": "CREATE UNIQUE INDEX web_funding_allocation_pkey ON sajada.web_funding_allocation USING btree (tenant_id, member_id, \"position\")"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_funding_allocation",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_legacy_profit_share",
+      "columns": [
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "member_name",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "period",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "revenue",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "cost",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "profit",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "distributable",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "member_percent",
+          "data_type": "numeric",
+          "udt_name": "numeric",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "investor_percent",
+          "data_type": "numeric",
+          "udt_name": "numeric",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "member_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "investor_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 13
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "at",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 14
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 15
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_at_not_null",
+          "type": "n",
+          "definition": "NOT NULL at"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_cost_not_null",
+          "type": "n",
+          "definition": "NOT NULL cost"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_distributable_not_null",
+          "type": "n",
+          "definition": "NOT NULL distributable"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_investor_percent_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_percent"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_investor_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_share"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_member_name_check",
+          "type": "c",
+          "definition": "CHECK ((length(member_name) <= 150))"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_member_name_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_name"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_member_percent_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_percent"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_member_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_share"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_period_not_null",
+          "type": "n",
+          "definition": "NOT NULL period"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_profit_not_null",
+          "type": "n",
+          "definition": "NOT NULL profit"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_reference_not_null",
+          "type": "n",
+          "definition": "NOT NULL reference"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_revenue_not_null",
+          "type": "n",
+          "definition": "NOT NULL revenue"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "web_legacy_profit_share_pkey",
+          "definition": "CREATE UNIQUE INDEX web_legacy_profit_share_pkey ON sajada.web_legacy_profit_share USING btree (tenant_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_legacy_profit_share",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_member_capital",
+      "columns": [
+        {
+          "table_name": "web_member_capital",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "member_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "status",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "disbursed_on",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "wallet",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "fee_member_dues",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "fee_admin",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "fee_other",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "fee_note",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "activated_at",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "activated_by",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "table_name": "web_member_capital",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 13
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_activated_at_check",
+          "type": "c",
+          "definition": "CHECK ((length(activated_at) <= 40))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_activated_by_check",
+          "type": "c",
+          "definition": "CHECK ((length(activated_by) <= 200))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_check",
+          "type": "c",
+          "definition": "CHECK (((wallet IS NULL) = (activated_at IS NULL)))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_check1",
+          "type": "c",
+          "definition": "CHECK (((wallet IS NULL) OR (status = 'disbursed'::text)))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_disbursed_on_check",
+          "type": "c",
+          "definition": "CHECK ((length(disbursed_on) <= 40))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_fee_note_check",
+          "type": "c",
+          "definition": "CHECK ((length(fee_note) <= 1000))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_member_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_id"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, member_id)"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_reference_check",
+          "type": "c",
+          "definition": "CHECK ((length(reference) <= 500))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['allocated'::text, 'disbursed'::text])))"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_status_not_null",
+          "type": "n",
+          "definition": "NOT NULL status"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_tenant_id_member_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, member_id) REFERENCES sajada.member(tenant_id, id)"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_wallet_check",
+          "type": "c",
+          "definition": "CHECK ((wallet = 10000000))"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_member_capital",
+          "name": "web_member_capital_pkey",
+          "definition": "CREATE UNIQUE INDEX web_member_capital_pkey ON sajada.web_member_capital USING btree (tenant_id, member_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_member_capital",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_order_payment",
+      "columns": [
+        {
+          "table_name": "web_order_payment",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_order_payment",
+          "column_name": "order_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_order_payment",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_order_payment",
+          "name": "web_order_payment_order_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL order_id"
+        },
+        {
+          "table_name": "web_order_payment",
+          "name": "web_order_payment_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, order_id)"
+        },
+        {
+          "table_name": "web_order_payment",
+          "name": "web_order_payment_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_order_payment",
+          "name": "web_order_payment_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_order_payment",
+          "name": "web_order_payment_tenant_id_order_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, order_id) REFERENCES sajada.sales_order(tenant_id, id)"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_order_payment",
+          "name": "web_order_payment_pkey",
+          "definition": "CREATE UNIQUE INDEX web_order_payment_pkey ON sajada.web_order_payment USING btree (tenant_id, order_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_order_payment",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_profit_report",
+      "columns": [
+        {
+          "table_name": "web_profit_report",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "member_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "period",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "revenue",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "cost",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "status",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "settlement_ref",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "policy",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "profit",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "member_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "investor_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 13
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "capital_returned",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 14
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "investor_profit_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 15
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "before_remaining",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 16
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "before_post_recovery",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 17
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "after_remaining",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 18
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "after_post_recovery",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 19
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "has_funding",
+          "data_type": "boolean",
+          "udt_name": "bool",
+          "is_nullable": "NO",
+          "column_default": "false",
+          "ordinal_position": 20
+        },
+        {
+          "table_name": "web_profit_report",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 21
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_after_post_recovery_not_null",
+          "type": "n",
+          "definition": "NOT NULL after_post_recovery"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_after_remaining_not_null",
+          "type": "n",
+          "definition": "NOT NULL after_remaining"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_before_post_recovery_not_null",
+          "type": "n",
+          "definition": "NOT NULL before_post_recovery"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_before_remaining_not_null",
+          "type": "n",
+          "definition": "NOT NULL before_remaining"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_capital_returned_not_null",
+          "type": "n",
+          "definition": "NOT NULL capital_returned"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_cost_check",
+          "type": "c",
+          "definition": "CHECK ((cost >= 0))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_cost_not_null",
+          "type": "n",
+          "definition": "NOT NULL cost"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_has_funding_not_null",
+          "type": "n",
+          "definition": "NOT NULL has_funding"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_investor_profit_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_profit_share"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_investor_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_share"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_member_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_id"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_member_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_share"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_period_check",
+          "type": "c",
+          "definition": "CHECK ((period ~ '^\\d{4}-(0[1-9]|1[0-2])$'::text))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_period_not_null",
+          "type": "n",
+          "definition": "NOT NULL period"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_policy_not_null",
+          "type": "n",
+          "definition": "NOT NULL policy"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_profit_not_null",
+          "type": "n",
+          "definition": "NOT NULL profit"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_reference_check",
+          "type": "c",
+          "definition": "CHECK ((length(reference) <= 500))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_reference_not_null",
+          "type": "n",
+          "definition": "NOT NULL reference"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_revenue_check",
+          "type": "c",
+          "definition": "CHECK ((revenue >= 0))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_revenue_not_null",
+          "type": "n",
+          "definition": "NOT NULL revenue"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_settlement_ref_check",
+          "type": "c",
+          "definition": "CHECK ((length(settlement_ref) <= 500))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_status_check",
+          "type": "c",
+          "definition": "CHECK ((status = ANY (ARRAY['pending'::text, 'settled'::text])))"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_status_not_null",
+          "type": "n",
+          "definition": "NOT NULL status"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_tenant_id_member_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, member_id) REFERENCES sajada.member(tenant_id, id)"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_tenant_id_member_id_period_key",
+          "type": "u",
+          "definition": "UNIQUE (tenant_id, member_id, period)"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_pkey",
+          "definition": "CREATE UNIQUE INDEX web_profit_report_pkey ON sajada.web_profit_report USING btree (tenant_id, id)"
+        },
+        {
+          "table_name": "web_profit_report",
+          "name": "web_profit_report_tenant_id_member_id_period_key",
+          "definition": "CREATE UNIQUE INDEX web_profit_report_tenant_id_member_id_period_key ON sajada.web_profit_report USING btree (tenant_id, member_id, period)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_profit_report",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_profit_report_funding",
+      "columns": [
+        {
+          "table_name": "web_profit_report_funding",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "column_name": "report_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "column_name": "position",
+          "data_type": "integer",
+          "udt_name": "int4",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "column_name": "investor_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "column_name": "investor_name",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "column_name": "amount",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount > 0))"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_amount_not_null",
+          "type": "n",
+          "definition": "NOT NULL amount"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_investor_id_check",
+          "type": "c",
+          "definition": "CHECK ((length(investor_id) <= 150))"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_investor_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_id"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_investor_name_check",
+          "type": "c",
+          "definition": "CHECK ((length(investor_name) <= 150))"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_investor_name_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_name"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, report_id, \"position\")"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_position_not_null",
+          "type": "n",
+          "definition": "NOT NULL \"position\""
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_report_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL report_id"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_tenant_id_report_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, report_id) REFERENCES sajada.web_profit_report(tenant_id, id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "web_profit_report_funding_pkey",
+          "definition": "CREATE UNIQUE INDEX web_profit_report_funding_pkey ON sajada.web_profit_report_funding USING btree (tenant_id, report_id, \"position\")"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_profit_report_funding",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_profit_segment",
+      "columns": [
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "report_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "position",
+          "data_type": "integer",
+          "udt_name": "int4",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "label",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "profit",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "member_percent",
+          "data_type": "numeric",
+          "udt_name": "numeric",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "investor_percent",
+          "data_type": "numeric",
+          "udt_name": "numeric",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "member_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "investor_share",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "web_profit_segment",
+          "column_name": "capital_returned",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 10
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_capital_returned_not_null",
+          "type": "n",
+          "definition": "NOT NULL capital_returned"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_investor_percent_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_percent"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_investor_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL investor_share"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_label_check",
+          "type": "c",
+          "definition": "CHECK ((length(label) <= 500))"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_label_not_null",
+          "type": "n",
+          "definition": "NOT NULL label"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_member_percent_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_percent"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_member_share_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_share"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, report_id, \"position\")"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_position_not_null",
+          "type": "n",
+          "definition": "NOT NULL \"position\""
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_profit_not_null",
+          "type": "n",
+          "definition": "NOT NULL profit"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_report_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL report_id"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_tenant_id_report_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, report_id) REFERENCES sajada.web_profit_report(tenant_id, id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_profit_segment",
+          "name": "web_profit_segment_pkey",
+          "definition": "CREATE UNIQUE INDEX web_profit_segment_pkey ON sajada.web_profit_segment USING btree (tenant_id, report_id, \"position\")"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_profit_segment",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_region",
+      "columns": [
+        {
+          "table_name": "web_region",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_region",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_region",
+          "column_name": "name",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_region",
+          "column_name": "level",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_region",
+          "column_name": "parent_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_region",
+          "column_name": "code",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_region",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_region",
+          "name": "web_region_code_check",
+          "type": "c",
+          "definition": "CHECK ((code ~ '^[0-9]{2}$'::text))"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_level_check",
+          "type": "c",
+          "definition": "CHECK ((level = ANY (ARRAY['province'::text, 'regency'::text, 'district'::text, 'village'::text])))"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_level_not_null",
+          "type": "n",
+          "definition": "NOT NULL level"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_name_check",
+          "type": "c",
+          "definition": "CHECK (((length(btrim(name)) >= 1) AND (length(btrim(name)) <= 150)))"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_name_not_null",
+          "type": "n",
+          "definition": "NOT NULL name"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_region",
+          "name": "web_region_tenant_id_parent_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, parent_id) REFERENCES sajada.web_region(tenant_id, id) DEFERRABLE INITIALLY DEFERRED"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_region",
+          "name": "web_region_pkey",
+          "definition": "CREATE UNIQUE INDEX web_region_pkey ON sajada.web_region USING btree (tenant_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_region",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_region_assignment",
+      "columns": [
+        {
+          "table_name": "web_region_assignment",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_region_assignment",
+          "column_name": "member_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_region_assignment",
+          "column_name": "region_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_region_assignment",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_member_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL member_id"
+        },
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, member_id)"
+        },
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_region_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL region_id"
+        },
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_tenant_id_member_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, member_id) REFERENCES sajada.member(tenant_id, id)"
+        },
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        },
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_tenant_id_region_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, region_id) REFERENCES sajada.web_region(tenant_id, id) DEFERRABLE INITIALLY DEFERRED"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_region_assignment",
+          "name": "web_region_assignment_pkey",
+          "definition": "CREATE UNIQUE INDEX web_region_assignment_pkey ON sajada.web_region_assignment USING btree (tenant_id, member_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_region_assignment",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_section_presence",
+      "columns": [
+        {
+          "table_name": "web_section_presence",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_section_presence",
+          "column_name": "section",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_section_presence",
+          "name": "web_section_presence_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, section)"
+        },
+        {
+          "table_name": "web_section_presence",
+          "name": "web_section_presence_section_check",
+          "type": "c",
+          "definition": "CHECK (((length(section) >= 1) AND (length(section) <= 100)))"
+        },
+        {
+          "table_name": "web_section_presence",
+          "name": "web_section_presence_section_not_null",
+          "type": "n",
+          "definition": "NOT NULL section"
+        },
+        {
+          "table_name": "web_section_presence",
+          "name": "web_section_presence_tenant_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id) REFERENCES sajada.tenant(id)"
+        },
+        {
+          "table_name": "web_section_presence",
+          "name": "web_section_presence_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_section_presence",
+          "name": "web_section_presence_pkey",
+          "definition": "CREATE UNIQUE INDEX web_section_presence_pkey ON sajada.web_section_presence USING btree (tenant_id, section)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_section_presence",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_supplier_bill",
+      "columns": [
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "supplier",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "date",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "due",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "currency",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "amount",
+          "data_type": "numeric",
+          "udt_name": "numeric",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "rate",
+          "data_type": "numeric",
+          "udt_name": "numeric",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 9
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "base",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "account",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "receipt_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "po_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 13
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "quantity",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 14
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "unit_cost",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 15
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "created_at",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 16
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "created_by",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 17
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 18
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_account_check",
+          "type": "c",
+          "definition": "CHECK ((account = ANY (ARRAY['1300'::text, '5100'::text])))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_account_not_null",
+          "type": "n",
+          "definition": "NOT NULL account"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount > (0)::numeric))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_amount_not_null",
+          "type": "n",
+          "definition": "NOT NULL amount"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_base_check",
+          "type": "c",
+          "definition": "CHECK ((base > 0))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_base_not_null",
+          "type": "n",
+          "definition": "NOT NULL base"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_currency_check",
+          "type": "c",
+          "definition": "CHECK ((currency = ANY (ARRAY['IDR'::text, 'USD'::text, 'SGD'::text])))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_currency_not_null",
+          "type": "n",
+          "definition": "NOT NULL currency"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_date_not_null",
+          "type": "n",
+          "definition": "NOT NULL date"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_due_not_null",
+          "type": "n",
+          "definition": "NOT NULL due"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_rate_check",
+          "type": "c",
+          "definition": "CHECK ((rate > (0)::numeric))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_rate_not_null",
+          "type": "n",
+          "definition": "NOT NULL rate"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_reference_check",
+          "type": "c",
+          "definition": "CHECK (((length(reference) >= 1) AND (length(reference) <= 150)))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_reference_not_null",
+          "type": "n",
+          "definition": "NOT NULL reference"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_supplier_check",
+          "type": "c",
+          "definition": "CHECK (((length(btrim(supplier)) >= 1) AND (length(btrim(supplier)) <= 200)))"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_supplier_not_null",
+          "type": "n",
+          "definition": "NOT NULL supplier"
+        },
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_supplier_bill",
+          "name": "web_supplier_bill_pkey",
+          "definition": "CREATE UNIQUE INDEX web_supplier_bill_pkey ON sajada.web_supplier_bill USING btree (tenant_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_supplier_bill",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_supplier_bill_payment",
+      "columns": [
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "bill_id",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "amount",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "date",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "reference",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "actor",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "at",
+          "data_type": "text",
+          "udt_name": "text",
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "column_name": "seq",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 9
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_amount_check",
+          "type": "c",
+          "definition": "CHECK ((amount > 0))"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_amount_not_null",
+          "type": "n",
+          "definition": "NOT NULL amount"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_bill_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL bill_id"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_date_not_null",
+          "type": "n",
+          "definition": "NOT NULL date"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_id_check",
+          "type": "c",
+          "definition": "CHECK (((length(id) >= 1) AND (length(id) <= 150)))"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL id"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id, id)"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_seq_not_null",
+          "type": "n",
+          "definition": "NOT NULL seq"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_tenant_id_bill_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id, bill_id) REFERENCES sajada.web_supplier_bill(tenant_id, id) DEFERRABLE INITIALLY DEFERRED"
+        },
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "web_supplier_bill_payment_pkey",
+          "definition": "CREATE UNIQUE INDEX web_supplier_bill_payment_pkey ON sajada.web_supplier_bill_payment USING btree (tenant_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_supplier_bill_payment",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
+      "triggers": []
+    },
+    {
+      "table_name": "web_workspace_revision",
+      "columns": [
+        {
+          "table_name": "web_workspace_revision",
+          "column_name": "tenant_id",
+          "data_type": "uuid",
+          "udt_name": "uuid",
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "table_name": "web_workspace_revision",
+          "column_name": "revision",
+          "data_type": "bigint",
+          "udt_name": "int8",
+          "is_nullable": "NO",
+          "column_default": "0",
+          "ordinal_position": 2
+        }
+      ],
+      "constraints": [
+        {
+          "table_name": "web_workspace_revision",
+          "name": "web_workspace_revision_pkey",
+          "type": "p",
+          "definition": "PRIMARY KEY (tenant_id)"
+        },
+        {
+          "table_name": "web_workspace_revision",
+          "name": "web_workspace_revision_revision_check",
+          "type": "c",
+          "definition": "CHECK ((revision >= 0))"
+        },
+        {
+          "table_name": "web_workspace_revision",
+          "name": "web_workspace_revision_revision_not_null",
+          "type": "n",
+          "definition": "NOT NULL revision"
+        },
+        {
+          "table_name": "web_workspace_revision",
+          "name": "web_workspace_revision_tenant_id_fkey",
+          "type": "f",
+          "definition": "FOREIGN KEY (tenant_id) REFERENCES sajada.tenant(id)"
+        },
+        {
+          "table_name": "web_workspace_revision",
+          "name": "web_workspace_revision_tenant_id_not_null",
+          "type": "n",
+          "definition": "NOT NULL tenant_id"
+        }
+      ],
+      "indexes": [
+        {
+          "table_name": "web_workspace_revision",
+          "name": "web_workspace_revision_pkey",
+          "definition": "CREATE UNIQUE INDEX web_workspace_revision_pkey ON sajada.web_workspace_revision USING btree (tenant_id)"
+        }
+      ],
+      "policies": [
+        {
+          "table_name": "web_workspace_revision",
+          "name": "tenant_scope",
+          "cmd": "ALL",
+          "qual": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)",
+          "with_check": "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)"
+        }
+      ],
       "triggers": []
     }
   ]

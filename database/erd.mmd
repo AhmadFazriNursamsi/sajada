@@ -57,6 +57,7 @@ erDiagram
     int8 on_hand
     int8 reserved
     int8 minimum
+    int8 seq
   }
   inventory_config {
     uuid tenant_id
@@ -71,6 +72,7 @@ erDiagram
     uuid product_id
     jsonb data
     text request_payload
+    int8 seq
   }
   inventory_location {
     uuid tenant_id
@@ -82,6 +84,8 @@ erDiagram
     uuid member_id
     text created_by
     timestamptz created_at
+    text region_label
+    int8 seq
   }
   inventory_movement {
     uuid tenant_id
@@ -95,11 +99,14 @@ erDiagram
     int8 after_reserved
     text actor
     timestamptz occurred_at
+    int8 seq
   }
   investor {
     uuid tenant_id
     uuid id
     text name
+    text code
+    int8 seq
   }
   journal {
     uuid tenant_id
@@ -124,6 +131,12 @@ erDiagram
     uuid sponsor_id
     text status
     timestamptz created_at
+    text initials
+    text area
+    text level
+    int8 reported_sales
+    int8 seq
+    int8 network_seq
   }
   member_number {
     uuid tenant_id
@@ -149,6 +162,7 @@ erDiagram
     uuid product_id
     numeric quantity
     numeric unit_price
+    text name
   }
   outbox {
     uuid tenant_id
@@ -168,6 +182,22 @@ erDiagram
     bpchar currency
     numeric unit_price
     numeric stock
+    text category
+    text emoji
+    text bg
+    bool active
+    int8 seq
+  }
+  product_stock_move {
+    uuid tenant_id
+    text id
+    uuid product_id
+    text product_name
+    int8 delta
+    int8 after
+    text reference
+    text date
+    int8 seq
   }
   profit_report {
     uuid tenant_id
@@ -200,6 +230,7 @@ erDiagram
     uuid order_id
     int4 revision
     jsonb data
+    int8 seq
   }
   purchase_inspection {
     uuid tenant_id
@@ -207,6 +238,7 @@ erDiagram
     uuid order_id
     uuid receipt_id
     jsonb data
+    int8 seq
   }
   purchase_invoice {
     uuid tenant_id
@@ -223,6 +255,7 @@ erDiagram
     uuid product_id
     jsonb data
     uuid supplier_id
+    int8 seq
   }
   purchase_payment {
     uuid tenant_id
@@ -236,6 +269,7 @@ erDiagram
     uuid id
     uuid order_id
     jsonb data
+    int8 seq
   }
   purchase_replacement {
     uuid tenant_id
@@ -244,17 +278,20 @@ erDiagram
     uuid receipt_id
     int8 quantity
     jsonb data
+    int8 seq
   }
   purchase_replacement_reversal {
     uuid tenant_id
     uuid id
     uuid replacement_id
     jsonb data
+    int8 seq
   }
   purchase_supplier {
     uuid tenant_id
     uuid id
     jsonb data
+    int8 seq
   }
   region {
     text id
@@ -269,6 +306,7 @@ erDiagram
     uuid product_id
     jsonb data
     uuid supplier_id
+    int8 seq
   }
   sales_order {
     uuid tenant_id
@@ -294,11 +332,202 @@ erDiagram
     text received_by
     text receipt_reference
     text receiver_name
+    text reference
+    text order_date
+    text paid_date
+    jsonb web
+    int8 seq
   }
   tenant {
     uuid id
     text name
     bpchar base_currency
+  }
+  web_capital_deposit {
+    uuid tenant_id
+    text id
+    int8 amount
+    text date
+    text note
+    int8 seq
+  }
+  web_capital_fee_plan {
+    uuid tenant_id
+    int8 member_dues
+    int8 admin_fee
+    int8 other
+    text note
+  }
+  web_commission_audit {
+    uuid tenant_id
+    int8 seq
+    text at
+    text action
+    text reference
+    text actor
+  }
+  web_commission_correction {
+    uuid tenant_id
+    text correction_id
+    int8 seq
+  }
+  web_commission_delivered {
+    uuid tenant_id
+    uuid order_id
+    int8 seq
+  }
+  web_commission_review {
+    uuid tenant_id
+    bool has_corrections
+  }
+  web_commission_status {
+    uuid tenant_id
+    text commission_id
+    text status
+    int8 seq
+  }
+  web_funding_allocation {
+    uuid tenant_id
+    uuid member_id
+    int4 position
+    uuid investor_id
+    text investor_name
+    int8 amount
+    int8 seq
+  }
+  web_legacy_profit_share {
+    uuid tenant_id
+    text id
+    text member_name
+    text period
+    text reference
+    int8 revenue
+    int8 cost
+    int8 profit
+    int8 distributable
+    numeric member_percent
+    numeric investor_percent
+    int8 member_share
+    int8 investor_share
+    text at
+    int8 seq
+  }
+  web_member_capital {
+    uuid tenant_id
+    uuid member_id
+    text status
+    text disbursed_on
+    text reference
+    int8 wallet
+    int8 fee_member_dues
+    int8 fee_admin
+    int8 fee_other
+    text fee_note
+    text activated_at
+    text activated_by
+    int8 seq
+  }
+  web_order_payment {
+    uuid tenant_id
+    uuid order_id
+    int8 seq
+  }
+  web_profit_report {
+    uuid tenant_id
+    text id
+    uuid member_id
+    text period
+    text reference
+    int8 revenue
+    int8 cost
+    text status
+    text settlement_ref
+    text policy
+    int8 profit
+    int8 member_share
+    int8 investor_share
+    int8 capital_returned
+    int8 investor_profit_share
+    int8 before_remaining
+    int8 before_post_recovery
+    int8 after_remaining
+    int8 after_post_recovery
+    bool has_funding
+    int8 seq
+  }
+  web_profit_report_funding {
+    uuid tenant_id
+    text report_id
+    int4 position
+    text investor_id
+    text investor_name
+    int8 amount
+  }
+  web_profit_segment {
+    uuid tenant_id
+    text report_id
+    int4 position
+    text label
+    int8 profit
+    numeric member_percent
+    numeric investor_percent
+    int8 member_share
+    int8 investor_share
+    int8 capital_returned
+  }
+  web_region {
+    uuid tenant_id
+    text id
+    text name
+    text level
+    text parent_id
+    text code
+    int8 seq
+  }
+  web_region_assignment {
+    uuid tenant_id
+    uuid member_id
+    text region_id
+    int8 seq
+  }
+  web_section_presence {
+    uuid tenant_id
+    text section
+  }
+  web_supplier_bill {
+    uuid tenant_id
+    text id
+    text supplier
+    text reference
+    text date
+    text due
+    text currency
+    numeric amount
+    numeric rate
+    int8 base
+    text account
+    text receipt_id
+    text po_id
+    int8 quantity
+    int8 unit_cost
+    text created_at
+    text created_by
+    int8 seq
+  }
+  web_supplier_bill_payment {
+    uuid tenant_id
+    text id
+    text bill_id
+    int8 amount
+    text date
+    text reference
+    text actor
+    text at
+    int8 seq
+  }
+  web_workspace_revision {
+    uuid tenant_id
+    int8 revision
   }
   member ||--o{ capital_account : "capital_account_tenant_id_member_id_fkey"
   journal ||--o{ capital_wallet_activation : "capital_wallet_activation_tenant_id_journal_id_fkey"
@@ -335,6 +564,7 @@ erDiagram
   product ||--o{ order_item : "order_item_tenant_id_product_id_fkey"
   tenant ||--o{ outbox : "outbox_tenant_id_fkey"
   tenant ||--o{ product : "product_tenant_id_fkey"
+  product ||--o{ product_stock_move : "product_stock_move_tenant_id_product_id_fkey"
   profit_report ||--o{ profit_report : "profit_replacement_fk"
   capital_account ||--o{ profit_report : "profit_report_tenant_id_member_id_fkey"
   purchase_order ||--o{ purchase_confirmation : "purchase_confirmation_tenant_id_order_id_fkey"
@@ -361,3 +591,19 @@ erDiagram
   inventory_location ||--o{ sales_order : "order_inventory_location_fk"
   tenant ||--o{ sales_order : "sales_order_tenant_id_fkey"
   member ||--o{ sales_order : "sales_order_tenant_id_member_id_fkey"
+  tenant ||--o{ web_capital_fee_plan : "web_capital_fee_plan_tenant_id_fkey"
+  sales_order ||--o{ web_commission_delivered : "web_commission_delivered_tenant_id_order_id_fkey"
+  tenant ||--o{ web_commission_review : "web_commission_review_tenant_id_fkey"
+  investor ||--o{ web_funding_allocation : "web_funding_allocation_tenant_id_investor_id_fkey"
+  member ||--o{ web_funding_allocation : "web_funding_allocation_tenant_id_member_id_fkey"
+  member ||--o{ web_member_capital : "web_member_capital_tenant_id_member_id_fkey"
+  sales_order ||--o{ web_order_payment : "web_order_payment_tenant_id_order_id_fkey"
+  member ||--o{ web_profit_report : "web_profit_report_tenant_id_member_id_fkey"
+  web_profit_report ||--o{ web_profit_report_funding : "web_profit_report_funding_tenant_id_report_id_fkey"
+  web_profit_report ||--o{ web_profit_segment : "web_profit_segment_tenant_id_report_id_fkey"
+  web_region ||--o{ web_region : "web_region_tenant_id_parent_id_fkey"
+  member ||--o{ web_region_assignment : "web_region_assignment_tenant_id_member_id_fkey"
+  web_region ||--o{ web_region_assignment : "web_region_assignment_tenant_id_region_id_fkey"
+  tenant ||--o{ web_section_presence : "web_section_presence_tenant_id_fkey"
+  web_supplier_bill ||--o{ web_supplier_bill_payment : "web_supplier_bill_payment_tenant_id_bill_id_fkey"
+  tenant ||--o{ web_workspace_revision : "web_workspace_revision_tenant_id_fkey"

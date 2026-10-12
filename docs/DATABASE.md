@@ -2,7 +2,7 @@
 
 ## PostgreSQL
 
-- `database/postgresql-full-schema.sql`: skema dan seluruh migrasi 001–020 untuk database baru/kosong.
+- `database/postgresql-full-schema.sql`: skema dan seluruh migrasi 001–023 untuk database baru/kosong.
 - `database/migrations.json`: urutan file sumber asli, sama dengan nomor initialization pada Compose.
 - `database/schema-dictionary.json`: tabel, kolom, constraint, indeks, policy RLS dari engine yang menjalankan SQL gabungan.
 - `database/erd.mmd`: relasi FK dalam format Mermaid.
@@ -18,6 +18,25 @@ DATABASE_URL di langkah ini adalah koneksi migrasi owner; API memakai koneksi ro
 Isolasi memakai tenant_id, FK komposit, RLS dan claim JWT terverifikasi. Role API harus NOSUPERUSER NOBYPASSRLS; grant minimum per modul dijelaskan pada file NUMBERING.md, PROFIT-SHARING.md, INVENTORY.md dan CAPITAL-WALLET.md. Password/role deployment tidak di-hardcode pada paket.
 
 Data anggota/pembelian/saldo operasional tidak disertakan. Unit tests mempunyai fixture contoh dan membuat database in-memory sendiri; fixture bukan seed produksi.
+
+## Penyimpanan web (migrasi 021–023)
+
+Aplikasi web menyimpan seluruh data koperasi di PostgreSQL melalui `lib/server/workspace/`:
+
+| Bagian web | Tabel |
+|---|---|
+| Anggota, katalog | `member`, `product` (kolom tampilan web ditambah migrasi 021) |
+| Pesanan, lunas | `sales_order` (+`reference` nomor SJ-…), `order_item`, `web_order_payment` |
+| Gudang & kartu stok | `inventory_location` (+`region_label` teks bebas), `inventory_balance`, `inventory_document`, `inventory_movement`, `product_stock_move` |
+| Safety stock & PO | `reorder_policy`, `purchase_order`, `purchase_receipt`, `purchase_supplier`, `purchase_confirmation`, `purchase_inspection`, `purchase_replacement`, `purchase_replacement_reversal` |
+| Nomor anggota | `member_number`, `member_number_counter` |
+| Jaringan MLM | `member.sponsor_id` (+`network_seq`) |
+| Investor | `investor` (+`code`) |
+| Modal & biaya, alokasi dana, bagi hasil bertingkat, laporan lama, komisi, wilayah, buku besar | tabel `web_*` (migrasi 022) |
+
+Kolom `seq` menjaga urutan daftar seperti di aplikasi. Bagian yang aturannya berbeda dari modul akuntansi API (aktivasi saldo tanpa jurnal, bagi hasil tanpa persetujuan terpisah, tagihan manual multi-mata uang) memakai tabel `web_*` sehingga tidak tercampur dengan catatan resmi API. `web_workspace_revision` mencegah tab/perangkat lain menimpa perubahan.
+
+Grant role aplikasi lokal ada di `services/local-dev-role.sql` (dipakai `pnpm db:setup`): SELECT/INSERT/UPDATE pada tabel schema, DELETE hanya pada tabel `web_*`, dan EXECUTE `sajada.web_clear_workspace` untuk reset/pemulihan demo. Fungsi tersebut melewati penjaga append-only; jangan diberikan pada database produksi.
 
 ## ClickHouse
 

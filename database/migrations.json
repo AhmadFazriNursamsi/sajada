@@ -78,5 +78,17 @@
   {
     "order": 20,
     "source": "services/transaction/capital-wallet-refund.sql"
+  },
+  {
+    "order": 21,
+    "source": "services/transaction/web-workspace.sql"
+  },
+  {
+    "order": 22,
+    "source": "services/transaction/web-sections.sql"
+  },
+  {
+    "order": 23,
+    "source": "services/transaction/web-maintenance.sql"
   }
 ]

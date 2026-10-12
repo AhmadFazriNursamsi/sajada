@@ -19,16 +19,16 @@ const iso = (v: unknown) => (v == null ? undefined : new Date(v as string).toISO
 // Key order is not meaningful (jsonb reorders keys), so compare a key-sorted serialisation.
 const sorted = (v: unknown): unknown =>
   Array.isArray(v) ? v.map(sorted) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sorted((v as Row)[k])])) : v;
-const same = (a: unknown, b: unknown) => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
+export const same = (a: unknown, b: unknown) => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
 // validateWarehouses compares serialised documents, so give them back the key order
 // applyStock() (shared/warehouses.ts) builds them with.
 const DOCUMENT_KEYS = ["id", "kind", "locationId", "productId", "quantity", "reference", "sourceId", "status", "returned", "actor", "at", "toId"];
 const inOrder = (o: Row, keys: string[]) => ({ ...Object.fromEntries(keys.filter((k) => k in o).map((k) => [k, o[k]])), ...o });
 const num = (v: unknown) => Number(v);
 // Drop undefined keys so objects compare equal to what the web app produced.
-const clean = <T extends Row>(o: T): T => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as T;
+export const clean = <T extends Row>(o: T): T => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as T;
 
-async function memberIds(c: Tx, t: string) {
+export async function memberIds(c: Tx, t: string) {
   const rows = (await c.query("SELECT id,name FROM sajada.member WHERE tenant_id=$1", [t])).rows;
   return { byName: new Map<string, string>(rows.map((r) => [r.name, r.id])), byId: new Map<string, string>(rows.map((r) => [r.id, r.name])) };
 }

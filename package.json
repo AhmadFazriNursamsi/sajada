@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 5173",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "db:setup": "node scripts/setup-local-db.mjs",
     "db:seed": "node --env-file=.env.local scripts/seed-demo.ts"
   },
   "dependencies": {
