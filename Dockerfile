@@ -26,6 +26,8 @@ COPY lib ./lib
 COPY shared ./shared
 COPY scripts ./scripts
 COPY docker/app-entrypoint.sh ./docker/app-entrypoint.sh
+# next/image writes optimized images here at runtime; everything else stays root-owned.
+RUN mkdir -p .next/cache && chown node:node .next/cache
 USER node
 EXPOSE 3000
 CMD ["sh", "docker/app-entrypoint.sh"]
