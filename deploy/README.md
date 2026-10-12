@@ -44,6 +44,8 @@ Buka https://sajada.devoutsys.com, lalu login dengan user `admin` dan `SAJADA_WE
 
 Belum ada akun per pengguna: satu password itu melindungi semua halaman (HTTP Basic, dicek oleh aplikasi sendiri di `proxy.ts`), jadi bagikan hanya ke pengurus yang berwenang dan ganti bila bocor (ubah `.env`, lalu `docker compose up -d`). Bila `SAJADA_WEB_PASSWORD` kosong, aplikasi menolak domain dan hanya melayani `127.0.0.1` (SSH tunnel: `ssh -N -L 3000:127.0.0.1:3000 user@server`). API `/v1` tidak memakai password ini; ia memakai token OIDC.
 
+Tanpa password sama sekali: kosongkan `SAJADA_WEB_PASSWORD` dan isi `SAJADA_OPEN_ACCESS=1`. Semua pengunjung domain lalu bisa mengubah dan mereset data, jadi hanya untuk data demo, dan buat backup rutin.
+
 ## Memperbarui
 
 ```bash

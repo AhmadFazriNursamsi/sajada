@@ -4,7 +4,9 @@ import { createHash, timingSafeEqual } from "node:crypto";
  * Who may use the web workspace. It has no accounts yet, so it serves either
  * - this computer only (no password set: local development, SSH tunnel), or
  * - anyone with SAJADA_WEB_USER/SAJADA_WEB_PASSWORD (HTTP Basic, checked in proxy.ts for
- *   every request), additionally on the hosts in SAJADA_PUBLIC_HOSTS (e.g. a domain).
+ *   every request), additionally on the hosts in SAJADA_PUBLIC_HOSTS (e.g. a domain), or
+ * - anyone at all on those hosts with SAJADA_OPEN_ACCESS=1 and no password: an explicit
+ *   choice, since every visitor can then change and reset all data.
  * Checking the Host header also blocks DNS rebinding from other sites.
  */
 const LOOPBACK = /^(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
@@ -13,7 +15,7 @@ export const webPassword = () => process.env.SAJADA_WEB_PASSWORD || "";
 
 export function allowedHost(host: string): boolean {
   if (LOOPBACK.test(host)) return true;
-  if (!webPassword()) return false;
+  if (!webPassword() && process.env.SAJADA_OPEN_ACCESS !== "1") return false;
   const name = host.toLowerCase().replace(/:\d+$/, "");
   return (process.env.SAJADA_PUBLIC_HOSTS ?? "").split(",").some((h) => h.trim().toLowerCase() === name);
 }
