@@ -6,13 +6,14 @@ import {invoiceFromReceipt,receivedPurchases} from '../shared/purchase-ap';
 import type {Replenishment} from '../shared/replenishment';
 import {useEffect,useState} from 'react';
 import {accounts,billAmount,outstanding,validatePayment,ledger,trialBalance,age,type Bill,type Payment,type Capital} from '../shared/accounting';
+import {workspaceStore} from '../lib/workspace-store';
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const id=(prefix:string)=>prefix+'-'+crypto.randomUUID().slice(0,8).toUpperCase();
 export default function AccountingPanel({tenant,orders,paid,money,receive,notify,purchasing}:{purchasing:Replenishment;tenant:string;orders:any[];paid:string[];money:(n:number)=>string;receive:(id:string)=>void;notify:(s:string)=>void}){
  const [memberRecords,setMemberRecords]=useState<Record<string,CapitalRecord>>({});
  const [tab,setTab]=useState('Piutang (AR)'),[bills,setBills]=useState<Bill[]>([]),[payments,setPayments]=useState<Payment[]>([]),[capital,setCapital]=useState<Capital[]>([]),[modal,setModal]=useState(''),[selected,setSelected]=useState(''),[currency,setCurrency]=useState('IDR'),[filter,setFilter]=useState('');
- useEffect(()=>{try{const d=JSON.parse(localStorage.getItem('sajada-ledger:'+tenant)||'{}');setMemberRecords(JSON.parse(localStorage.getItem('sajada-member-capital:'+tenant)||'{}'));setBills(d.bills||[]);setPayments(d.payments||[]);setCapital(d.capital||[])}catch{setBills([]);setPayments([]);setCapital([])}setModal('');},[tenant]);
- function save(b=bills,p=payments,c=capital){localStorage.setItem('sajada-ledger:'+tenant,JSON.stringify({bills:b,payments:p,capital:c}));}
+ useEffect(()=>{try{const d=JSON.parse(workspaceStore.getItem('sajada-ledger:'+tenant)||'{}');setMemberRecords(JSON.parse(workspaceStore.getItem('sajada-member-capital:'+tenant)||'{}'));setBills(d.bills||[]);setPayments(d.payments||[]);setCapital(d.capital||[])}catch{setBills([]);setPayments([]);setCapital([])}setModal('');},[tenant]);
+ function save(b=bills,p=payments,c=capital){workspaceStore.setItem('sajada-ledger:'+tenant,JSON.stringify({bills:b,payments:p,capital:c}));}
  const matched=receivedPurchases(purchasing,bills),unbilled=matched.filter(r=>!r.bill);
  const lines=ledger(orders,paid,bills,payments,capital,memberRecords),balance=trialBalance(lines),cash=balance.find(a=>a.account==='1100')!.debit-balance.find(a=>a.account==='1100')!.credit;const ap=bills.reduce((s,b)=>s+outstanding(b,payments),0),ar=orders.filter(o=>!paid.includes(o.id)&&!o.cancelledAt).reduce((s,o)=>s+o.total,0);
  const debit=balance.reduce((s,b)=>s+b.balanceDebit,0),credit=balance.reduce((s,b)=>s+b.balanceCredit,0);

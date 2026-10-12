@@ -7,9 +7,10 @@ import {returnCorrections,correctionPositions} from '../shared/commission-return
 import type {WarehouseState} from '../shared/warehouses';
 import {completedForCommission} from '../shared/order-receipt';
 import {commissions,POLICY} from '../shared/mlm';
+import {workspaceStore} from '../lib/workspace-store';
 export default function Dashboard({tenant,orders,paid,members,month,money,navigate,warehouses}:{warehouses:WarehouseState;tenant:string;orders:any[];paid:string[];members:any[];month:string;money:(n:number)=>string;navigate:(p:string)=>void}){
  const [finance,setFinance]=useState<any>({bills:[],payments:[],capital:[]}),[commissionState,setCommissionState]=useState<any>({delivered:[],statuses:{}});
- useEffect(()=>{try{setFinance(JSON.parse(localStorage.getItem('sajada-ledger:'+tenant)||'{"bills":[],"payments":[],"capital":[]}'));setCommissionState(JSON.parse(localStorage.getItem('sajada-commissions:'+tenant)||'{"delivered":[],"statuses":{}}'))}catch{}},[tenant]);
+ useEffect(()=>{try{setFinance(JSON.parse(workspaceStore.getItem('sajada-ledger:'+tenant)||'{"bills":[],"payments":[],"capital":[]}'));setCommissionState(JSON.parse(workspaceStore.getItem('sajada-commissions:'+tenant)||'{"delivered":[],"statuses":{}}'))}catch{}},[tenant]);
  const data=summarize(orders,tenant,month,paid),previous=summarize(orders,tenant,previousMonth(month),paid);
  const scoped=orders.filter(o=>o.tenant===tenant);const balance=trialBalance(ledger(scoped,paid,finance.bills||[],finance.payments||[],finance.capital||[]));
  const cashAccount=balance.find(b=>b.account==='1100')!;const cash=cashAccount.debit-cashAccount.credit;const ap=(finance.bills||[]).reduce((s:number,b:any)=>s+outstanding(b,finance.payments||[]),0);

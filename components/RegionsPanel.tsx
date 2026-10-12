@@ -1,11 +1,12 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {seedRegions,validateRegions,regionPath,assignRegion,regionMembers,removeRegion,LEVELS,LEVEL_LABELS,type Region,type RegionData} from '../shared/regions';
+import {workspaceStore} from '../lib/workspace-store';
 export default function RegionsPanel({tenant,members,onAssign,notify}:{tenant:string;members:any[];onAssign:(cities:Record<string,string>)=>void;notify:(s:string)=>void}){
  const [data,setData]=useState<RegionData>({regions:[],assignments:{}}),[selected,setSelected]=useState(''),[modal,setModal]=useState(false),[editing,setEditing]=useState<Region|null>(null),[level,setLevel]=useState<Region['level']>('province'),[parent,setParent]=useState(''),[code,setCode]=useState(''),[name,setName]=useState(''),[person,setPerson]=useState(''),[village,setVillage]=useState('');
  const names=members.map(m=>String(m[0]));
- useEffect(()=>{try{const raw=localStorage.getItem('sajada-regions:'+tenant);setData(raw?JSON.parse(raw):{regions:seedRegions(),assignments:{}});}catch{setData({regions:seedRegions(),assignments:{}})}setSelected('');setPerson('');setVillage('');setModal(false)},[tenant]);
- function save(next:RegionData){validateRegions(next.regions);localStorage.setItem('sajada-regions:'+tenant,JSON.stringify(next));setData(next);}
+ useEffect(()=>{try{const raw=workspaceStore.getItem('sajada-regions:'+tenant);setData(raw?JSON.parse(raw):{regions:seedRegions(),assignments:{}});}catch{setData({regions:seedRegions(),assignments:{}})}setSelected('');setPerson('');setVillage('');setModal(false)},[tenant]);
+ function save(next:RegionData){validateRegions(next.regions);workspaceStore.setItem('sajada-regions:'+tenant,JSON.stringify(next));setData(next);}
  function edit(r:Region|null){setEditing(r);setLevel(r?.level||'province');setParent(r?.parentId||'');setName(r?.name||'');setCode(r?.code||'');setModal(true);}
  const assigned=names.filter(n=>data.assignments[n]).length;const filtered=selected?regionMembers(data,selected,names):names;
  function tree(parentId:string|null):React.ReactNode{return data.regions.filter(r=>r.parentId===parentId).map(r=><details key={r.id} className="regionbranch" open={r.level==='province'}><summary><button className="textbutton" onClick={e=>{e.preventDefault();setSelected(r.id)}}>{r.name}</button><small>{LEVEL_LABELS[r.level]} · kode {r.code||"belum diisi"}</small><span className="badge Silver">{regionMembers(data,r.id,names).length} anggota</span><button className="textbutton" onClick={e=>{e.preventDefault();edit(r)}}>Edit</button><button className="textbutton" onClick={e=>{e.preventDefault();try{save(removeRegion(data,r.id));if(selected===r.id)setSelected('');notify('Wilayah kosong dihapus.')}catch(err){notify((err as Error).message)}}}>Hapus</button></summary>{tree(r.id)}</details>)}

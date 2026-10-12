@@ -6,11 +6,12 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "next dev -p 5173",
+    "dev": "next dev -H 127.0.0.1 -p 5173",
     "dev:all": "node scripts/dev-all.mjs",
     "build": "next build",
-    "start": "next start -p 5173",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "start": "next start -H 127.0.0.1 -p 5173",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "db:seed": "node --env-file=.env.local scripts/seed-demo.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

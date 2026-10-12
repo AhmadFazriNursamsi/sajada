@@ -16,6 +16,7 @@ services:
       - ./transaction/profit-corrections.sql:/docker-entrypoint-initdb.d/05-profit-corrections.sql:ro
       - ./transaction/profit-approval.sql:/docker-entrypoint-initdb.d/06-profit-approval.sql:ro
       - ./transaction/capital-wallet-refund.sql:/docker-entrypoint-initdb.d/20-capital-wallet-refund.sql:ro
+      - ./transaction/web-workspace.sql:/docker-entrypoint-initdb.d/21-web-workspace.sql:ro
       - ./transaction/capital-wallet.sql:/docker-entrypoint-initdb.d/19-capital-wallet.sql:ro
       - ./transaction/po-replacement-reversal.sql:/docker-entrypoint-initdb.d/18-po-replacement-reversal.sql:ro
       - ./transaction/po-replacement.sql:/docker-entrypoint-initdb.d/17-po-replacement.sql:ro

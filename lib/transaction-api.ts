@@ -1,5 +1,5 @@
-import pg from "pg";
 import { createHandler } from "../services/transaction/server.mjs";
+import { pool } from "./server/db";
 
 // Runs the transaction API (services/transaction/server.mjs) inside Next.js route handlers.
 // The handler is the same one covered by services/db-tests; this file only adapts
@@ -8,16 +8,15 @@ import { createHandler } from "../services/transaction/server.mjs";
 type Handler = ReturnType<typeof createHandler>;
 const REQUIRED_ENV = ["DATABASE_URL", "OIDC_JWKS_URL", "OIDC_ISSUER", "OIDC_AUDIENCE"] as const;
 
-// Keep one pool across dev hot reloads.
+// Keep one handler across dev hot reloads.
 const cache = globalThis as typeof globalThis & { sajadaTransactionApi?: Handler };
 
 function handler(): Handler {
   if (!cache.sajadaTransactionApi) {
     const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
     if (missing.length) throw new Error(`Transaction API not configured: ${missing.join(", ")} required`);
-    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 10 });
     cache.sajadaTransactionApi = createHandler({
-      pool,
+      pool: pool(),
       jwksUrl: process.env.OIDC_JWKS_URL!,
       issuer: process.env.OIDC_ISSUER!,
       audience: process.env.OIDC_AUDIENCE!,
