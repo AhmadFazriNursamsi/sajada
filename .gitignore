@@ -53,3 +53,6 @@ next-env.d.ts
 .env.*
 !.env.example
 !**/.env.example
+
+# Machine-specific Docker Compose overrides
+services/compose.override.yaml

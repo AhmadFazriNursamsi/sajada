@@ -1,0 +1,4 @@
+# Optional, machine-specific: copy to compose.override.yaml (git-ignored) when port 5432 is taken.
+services:
+  postgres:
+    ports: !override ["127.0.0.1:5433:5432"]

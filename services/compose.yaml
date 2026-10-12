@@ -1,4 +1,6 @@
-# Local development infrastructure only. Set passwords in your shell, never commit them.
+# Local development only. Passwords come from services/.env (git-ignored; `pnpm db:setup` creates it).
+# `docker compose up -d --build` runs PostgreSQL, the app role setup and the app on http://127.0.0.1:3000.
+# ClickHouse is in the "analytics" profile: `docker compose --profile analytics up -d`.
 services:
   postgres:
     image: postgres:16-alpine
@@ -7,6 +9,11 @@ services:
       POSTGRES_USER: sajada_owner
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     ports: ["127.0.0.1:5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sajada_owner -d sajada"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ../architecture/postgresql.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
@@ -32,8 +39,34 @@ services:
       - ./transaction/order-dispatch.sql:/docker-entrypoint-initdb.d/09-order-dispatch.sql:ro
       - ./transaction/order-cancel.sql:/docker-entrypoint-initdb.d/08-order-cancel.sql:ro
       - ./transaction/inventory.sql:/docker-entrypoint-initdb.d/07-inventory.sql:ro
+  # Creates/updates the non-owner role the app connects as (also for an existing data volume).
+  db-setup:
+    image: postgres:16-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      APP_DB_PASSWORD: ${SAJADA_API_PASSWORD:?Set SAJADA_API_PASSWORD}
+    volumes:
+      - ./local-dev-role.sql:/local-dev-role.sql:ro
+    command: ["sh", "-c", "psql -h postgres -U sajada_owner -d sajada -v ON_ERROR_STOP=1 -q -v pw=\"$$APP_DB_PASSWORD\" -f /local-dev-role.sql"]
+  # Web + /v1 API. No sign-in yet: reachable only from this computer (127.0.0.1).
+  app:
+    build: ..
+    depends_on:
+      db-setup:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://sajada_api:${SAJADA_API_PASSWORD}@postgres:5432/sajada
+      SAJADA_LOCAL_MODE: "1"
+      OIDC_ISSUER: ${OIDC_ISSUER:-http://127.0.0.1:8085/realms/sajada}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://127.0.0.1:8085/realms/sajada/protocol/openid-connect/certs}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-sajada-api}
+    ports: ["127.0.0.1:${APP_PORT:-3000}:3000"]
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
+    profiles: ["analytics"]
     environment:
       CLICKHOUSE_USER: sajada_analytics
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD}
