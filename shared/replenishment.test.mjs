@@ -1,6 +1,7 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {confirmPO} from './po-confirmation.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {addLocation,seedWarehouses,applyStock,available} from './warehouses.ts';
+import {addLocation,applyStock,available} from './warehouses.ts';
 import {emptyReplenishment,setSupplier,setReorderPolicy,automaticPO,approvePO,cancelPO,receivePO,validateReplenishment} from './replenishment.ts';
 const products=[{id:'sku',name:'Coffee',stock:10,active:true}],at='2026-10-08T01:00:00.000Z',actor='admin',w=seedWarehouses(products,'Test');
 const policy={locationId:'depot-awal',productId:'sku',safety:5,target:20,minimumOrder:1,multiple:1,supplier:'Coffee supplier',unitCost:50000,leadDays:7,enabled:true,changedAt:at,changedBy:actor};

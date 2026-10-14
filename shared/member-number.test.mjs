@@ -1,4 +1,5 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {emptyNumbers,formatMemberNumber,issueNumber,indonesianYear,validateNumbers} from './member-number.ts';import {seedRegions} from './regions.ts';
+import {seedRegions} from './test-fixtures.ts';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {emptyNumbers,formatMemberNumber,issueNumber,indonesianYear,validateNumbers} from './member-number.ts';;
 const geo={regions:seedRegions().map(r=>({...r,code:r.level==='province'?'01':r.level==='regency'?(r.id==='demo-bandung'?'02':'03'):r.level==='district'?'04':undefined})),assignments:{A:'demo-dago',B:'demo-pabaton'}};
 test('concatenates three local codes YY and six-digit sequence',()=>assert.equal(formatMemberNumber(['01','02','04'],2026,1),'01020426000001'));
 test('same year sequence increments across regions in tenant',()=>{const a=issueNumber(emptyNumbers(),'A',['A','B'],geo,'2026-10-07T12:00:00Z');const b=issueNumber(a.state,'B',['A','B'],geo,'2026-10-07T12:00:00Z');assert.equal(b.record.sequence,2);assert.equal(b.record.number,'01030426000002');});

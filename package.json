@@ -12,7 +12,6 @@
     "start": "next start -H 127.0.0.1 -p 5173",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:setup": "node scripts/setup-local-db.mjs",
-    "db:seed": "node --env-file=.env.local scripts/seed-demo.ts",
     "docker:up": "docker compose --project-directory services up -d --build",
     "docker:down": "docker compose --project-directory services down",
     "docker:logs": "docker compose --project-directory services logs -f app"

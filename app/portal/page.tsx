@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Portal · Sajada" };
 
 const rp = (n: number) => formatMoney(n, "IDR");
-const STATUS: Record<string, string> = { pending: "Menunggu", approved: "Disetujui", paid: "Dibayar (simulasi)", settled: "Selesai" };
+const STATUS: Record<string, string> = { pending: "Menunggu", approved: "Disetujui", paid: "Dibayar (dicatat)", settled: "Selesai" };
 
 export default async function PortalPage() {
   const user = await currentUser();
@@ -38,7 +38,7 @@ export default async function PortalPage() {
         </div>
       </header>
       <main className="portalbody">
-        <p className="muted portalnote">Data simulasi koperasi; status pembayaran dan bagi hasil bukan konfirmasi bank.</p>
+        <p className="muted portalnote">Status pembayaran dan bagi hasil adalah pencatatan koperasi, bukan konfirmasi bank.</p>
         {error && <p className="formerror" role="alert">{error}</p>}
         {data?.kind === "member" && <Member d={data} />}
         {data?.kind === "investor" && <Investor d={data} />}
@@ -61,7 +61,7 @@ function Member({ d }: { d: MemberPortal }) {
       <div className="stats">
         <Stat label="Saldo belanja" value={d.wallet.activated ? rp(d.wallet.balance) : "Belum aktif"} note={d.wallet.activated ? `Saldo awal ${rp(d.wallet.opening)}` : "Diaktifkan oleh petugas koperasi"} />
         <Stat label="Komisi disetujui" value={rp(sum("approved"))} note={`Menunggu ${rp(sum("pending"))}`} />
-        <Stat label="Komisi dibayar" value={rp(sum("paid"))} note="Pencatatan simulasi" />
+        <Stat label="Komisi dibayar" value={rp(sum("paid"))} note="Pencatatan koperasi, bukan transfer bank" />
         <Stat label="Sisa penyertaan" value={d.wallet.activated || d.sharing.length ? rp(d.remainingPrincipal) : "Belum aktif"} note={d.wallet.activated || d.sharing.length ? `Dari ${settled.length} laporan bagi hasil selesai` : "Penyertaan Rp12,5 juta belum diaktifkan"} />
       </div>
       <section className="panel">

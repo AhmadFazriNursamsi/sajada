@@ -46,11 +46,6 @@ export function applyStock(original:WarehouseState,action:StockAction,actor:stri
  }
  s.documents.push(doc);s.requests.push({id:action.id,payload});return s;
 }
-export function seedWarehouses(products:{id:string;stock:number}[],tenant:string):WarehouseState{
- let s=addLocation(emptyWarehouses(),{id:'depot-awal',name:'Depot provinsi • '+tenant,kind:'province',parentId:null,regionId:'Wilayah demo belum dipetakan',memberId:null});
- for(const p of products)if(p.stock>0)s=applyStock(s,{id:'opening-'+p.id,kind:'receive',locationId:'depot-awal',productId:p.id,quantity:p.stock,reference:'Migrasi saldo demo sebelumnya'},'Migrasi demo',new Date().toISOString());
- return s;
-}
 export function validateWarehouses(value:unknown,products:{id:string;stock?:number}[],members:string[]){
  const s=value as WarehouseState;if(!s||s.version!==1||!['locations','balances','documents','movements','requests'].every(k=>Array.isArray((s as any)[k])))throw Error('Format inventori tidak valid.');
  let tree=emptyWarehouses();for(const l of s.locations){tree=addLocation(tree,l);if(l.kind==='member'&&!members.includes(l.memberId!))throw Error('Anggota lokasi tidak ditemukan.');}

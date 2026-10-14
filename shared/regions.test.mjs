@@ -1,4 +1,5 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {seedRegions,validateRegions,assignRegion,regionMembers,removeRegion,regionPath} from './regions.ts';
+import {seedRegions} from './test-fixtures.ts';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {validateRegions,assignRegion,regionMembers,removeRegion,regionPath} from './regions.ts';
 test('sample tree valid with complete path',()=>{const rows=validateRegions(seedRegions());assert.deepEqual(regionPath(rows,'demo-dago').map(r=>r.level),['province','regency','district','village']);});
 test('wrong parent, duplicate id and same-parent name rejected',()=>{const rows=seedRegions();assert.throws(()=>validateRegions([...rows,{id:'x',name:'Bad',level:'village',parentId:'demo-jb'}]));assert.throws(()=>validateRegions([...rows,rows[0]]));assert.throws(()=>validateRegions([...rows,{...rows[3],id:'other',name:'dago'}]));});
 test('one assigned member counts once at every ancestor',()=>{const d=assignRegion({regions:seedRegions(),assignments:{}},'A','demo-dago',['A']);assert.deepEqual(regionMembers(d,'demo-jb',['A','A','B']),['A']);assert.deepEqual(regionMembers(d,'demo-bandung',['A']),['A']);});

@@ -1,4 +1,4 @@
-// One-time local setup: PostgreSQL in Docker, the app's database role, .env.local and demo data.
+// One-time local setup: PostgreSQL in Docker, the app's database role, .env.local and the first admin.
 // Usage: pnpm db:setup   (safe to run again; existing passwords and data are kept)
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
@@ -41,9 +41,6 @@ const wanted = {
 const add = Object.entries(wanted).filter(([k]) => !local[k]);
 if (add.length) writeFileSync(localFile, (existsSync(localFile) ? readFileSync(localFile, "utf8").replace(/\n?$/, "\n") : "# Local development only. Not committed (.gitignore: .env*).\n") + add.map(([k, v]) => `${k}=${v}`).join("\n") + "\n", { mode: 0o600 });
 
-// 5. Demo koperasi data.
-run(process.execPath, ["--env-file=.env.local", "scripts/seed-demo.ts"], { cwd: root });
-
-// 6. First admin account (password in services/.env; must be replaced at the first sign-in).
+// 5. First admin account (password in services/.env; must be replaced at the first sign-in).
 run(process.execPath, ["--env-file=.env.local", "scripts/admin-account.ts"], { cwd: root });
 console.log(`\nSiap. Jalankan: pnpm dev:all  →  http://127.0.0.1:5173\nLogin pertama: admin / ${env.SAJADA_ADMIN_PASSWORD} (wajib diganti; tersimpan di services/.env)`);

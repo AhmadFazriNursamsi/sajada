@@ -4,7 +4,6 @@ import { DB_SECTIONS } from "../../../shared/workspace-sections.ts";
 import { inTenant, UserError, type Tx } from "../db.ts";
 import { readMain, saveMain, type MainSection } from "./main.ts";
 import { SECTION_STORES } from "./sections.ts";
-import { demoMain } from "./demo.ts";
 import { withDatabaseIds } from "./legacy-ids.ts";
 import { authorizeSave } from "./authorize.ts";
 import type { Role } from "../../roles.ts";
@@ -57,24 +56,6 @@ export function saveSection(actor: { role: Role; name: string }, tenantName: str
     }
     return bump(c, t);
   });
-}
-
-// Sections the app's "Reset data demo" removes; members, numbers, network, regions and funding stay.
-const RESET_SECTIONS = ["sajada-ledger", "sajada-commissions", "sajada-member-capital", "sajada-capital-fees", "sajada-profit-sharing", "sajada-tiered-sharing"];
-
-/** Demo reset: clears sales, stock and purchasing, then restores the demo catalog and depot. */
-export function resetWorkspace(tenantName: string): Promise<void> {
-  return inTenant(tenantName, (c, t) => resetIn(c, t, tenantName));
-}
-export async function resetIn(c: Tx, t: string, tenantName: string) {
-  const before = await readAll(c, t, tenantName);
-  await c.query("SELECT sajada.web_clear_workspace($1,'transactions')", [t]);
-  for (const section of RESET_SECTIONS) await SECTION_STORES[section].save(c, t, before[section], null);
-  const cleared = await readMain(c, t, tenantName);
-  const next = demoMain(tenantName, cleared.members);
-  validateWorkspace(tenantName, { ...(await readAll(c, t, tenantName)), "sajada-v2": next });
-  await saveMain(c, t, cleared, next);
-  await bump(c, t);
 }
 
 /** Backup restore: replaces every section of the tenant with the backup's sections. */

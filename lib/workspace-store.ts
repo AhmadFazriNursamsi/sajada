@@ -1,4 +1,4 @@
-import { loadWorkspaceAction, resetWorkspaceAction, restoreWorkspaceAction, saveSectionAction } from "@/app/actions/workspace";
+import { loadWorkspaceAction, restoreWorkspaceAction, saveSectionAction } from "@/app/actions/workspace";
 import { SECTIONS } from "@/shared/backup";
 import { DB_SECTIONS } from "@/shared/workspace-sections";
 
@@ -62,11 +62,6 @@ export const workspaceStore = {
     const [section, tenant] = split(key);
     if (!inDb(section)) return localStorage.removeItem(key);
     save(tenant, section, null);
-  },
-
-  /** Demo reset on the server (after pending saves), then reloads the tenant's data. */
-  reset(tenant: string): Promise<void> {
-    return replaceAll(tenant, () => resetWorkspaceAction(tenant));
   },
 
   /** Replaces every section of the tenant with a validated backup, then reloads its data. */

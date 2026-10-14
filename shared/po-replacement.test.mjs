@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses} from './warehouses.ts';
+;
 import {emptyReplenishment,setReorderPolicy,automaticPO,approvePO,validateReplenishment} from './replenishment.ts';
 import {inspectPO} from './po-inspection.ts';
 import {linkReplacement,rejectionCases,reverseReplacement} from './po-replacement.ts';

@@ -2,7 +2,7 @@
 
 import { requireStaff } from "@/lib/server/auth";
 import { UserError } from "@/lib/server/db";
-import { loadWorkspace, resetWorkspace, restoreWorkspace, saveSection, userMessage, type Workspace } from "@/lib/server/workspace";
+import { loadWorkspace, restoreWorkspace, saveSection, userMessage, type Workspace } from "@/lib/server/workspace";
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -30,17 +30,7 @@ export async function saveSectionAction(tenant: string, section: string, value: 
 
 async function requireAdmin(tenant: string) {
   const user = await requireStaff(tenant);
-  if (user.role !== "admin") throw new UserError("Hanya admin yang dapat mereset atau memulihkan data koperasi.");
-}
-
-export async function resetWorkspaceAction(tenant: string): Promise<ActionResult<null>> {
-  try {
-    await requireAdmin(tenant);
-    await resetWorkspace(tenant);
-    return { ok: true, data: null };
-  } catch (error) {
-    return { ok: false, error: userMessage(error) };
-  }
+  if (user.role !== "admin") throw new UserError("Hanya admin yang dapat memulihkan data koperasi dari backup.");
 }
 
 export async function restoreWorkspaceAction(tenant: string, sections: Record<string, unknown>): Promise<ActionResult<null>> {

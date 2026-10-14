@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses,applyStock,available} from './warehouses.ts';
+import {applyStock,available} from './warehouses.ts';
 import {cancelBrowserOrder} from './order-cancel.ts';
 import {ledger,trialBalance} from './accounting.ts';import {summarize} from './analytics.ts';
 const products=[{id:'sku',stock:10}],at='2026-10-08T01:00:00Z';

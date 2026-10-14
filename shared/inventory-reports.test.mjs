@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses,emptyWarehouses,addLocation,applyStock,stockAt} from './warehouses.ts';import {restockPlan,inventoryPeriod,locationScope,jakartaDay} from './inventory-reports.ts';
+import {emptyWarehouses,addLocation,applyStock,stockAt} from './warehouses.ts';import {restockPlan,inventoryPeriod,locationScope,jakartaDay} from './inventory-reports.ts';
 const ps=[{id:'sku',name:'Product',sku:'SKU'}];let initial=emptyWarehouses();for(const l of [{id:'p',kind:'province',parentId:null},{id:'r',kind:'regency',parentId:'p'},{id:'a',kind:'district',parentId:'r'},{id:'b',kind:'district',parentId:'r'}])initial=addLocation(initial,{name:l.id,regionId:l.id,memberId:null,...l});
 const run=(s,id,kind,extra={},at='2026-10-08T03:00:00Z')=>applyStock(s,{id,kind,locationId:'p',productId:'sku',quantity:10,reference:id,...extra},'admin',at);
 test('location scope includes descendants once and rejects unknown location',()=>{assert.deepEqual(locationScope(initial,{locationId:'r',includeChildren:true}),['r','a','b']);assert.deepEqual(locationScope(initial,{locationId:'r'}),['r']);assert.throws(()=>locationScope(initial,{locationId:'foreign'}));});

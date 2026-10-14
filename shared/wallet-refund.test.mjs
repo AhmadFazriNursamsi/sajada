@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses,applyStock,stockAt} from './warehouses.ts';
+import {applyStock,stockAt} from './warehouses.ts';
 import {activateCapitalWallet,DEFAULT_FEE_PLAN,payWithCapitalWallet,walletBalance} from './member-capital.ts';
 import {refundBrowserWalletOrder} from './wallet-refund.ts';
 import {refundBrowserWalletOrder as backend} from '../services/transaction/wallet-refund-domain.mjs';

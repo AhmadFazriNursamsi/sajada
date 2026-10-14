@@ -29,7 +29,7 @@ docker compose pull
 docker compose up -d
 ```
 
-Saat pertama jalan, database dibuat dari migrasi dan tiga koperasi demo diisi otomatis. Bila port 3000 di server sudah dipakai, ubah `APP_PORT` di `.env` dan port di `nginx-sajada.conf`.
+Saat pertama jalan, database dibuat dari migrasi dalam keadaan kosong (tanpa koperasi maupun data contoh); admin pertama dibuat dari `SAJADA_ADMIN_PASSWORD`. Setelah login, admin membuat koperasi, lalu mengisi depot, produk dan anggota. Bila port 3000 di server sudah dipakai, ubah `APP_PORT` di `.env` dan port di `nginx-sajada.conf`.
 
 ## Domain dan HTTPS (nginx)
 

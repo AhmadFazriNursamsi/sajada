@@ -11,20 +11,17 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS build
 COPY . .
 RUN pnpm build
-# The seed imports pg and zod; zod is bundled into the server, so standalone leaves it out.
-RUN mkdir -p /seed-modules && cp -RL node_modules/zod /seed-modules/zod
 
 FROM base AS runner
 ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
 # Only the files the server traces as used, plus static assets (Next leaves those out of standalone).
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /seed-modules/zod ./node_modules/zod
 COPY public ./public
-# The demo seed runs at start-up from these sources (Node strips the TypeScript types).
-COPY lib ./lib
-COPY shared ./shared
-COPY scripts ./scripts
+# The first-admin script runs at start-up from these sources (Node strips the TypeScript types;
+# pg is in the standalone node_modules).
+COPY lib/server/db.ts lib/server/password.ts ./lib/server/
+COPY scripts/admin-account.ts ./scripts/
 COPY docker/app-entrypoint.sh ./docker/app-entrypoint.sh
 # next/image writes optimized images here at runtime; everything else stays root-owned.
 RUN mkdir -p .next/cache && chown node:node .next/cache

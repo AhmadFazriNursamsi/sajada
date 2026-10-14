@@ -1,7 +1,7 @@
 export type Graph = Record<string,string|null>;
 export type Sale = {id:string;seller:string;total:number;upline:string[];policy:string};
 export type Commission = {id:string;orderId:string;beneficiary:string;seller:string;level:number;rate:number;base:number;amount:number;policy:string};
-export const POLICY='unilevel-demo-v1';
+export const POLICY='unilevel-v1';
 export const RATES=[5,3,2,1];
 export function validateGraph(graph:Graph){
  for(const member of Object.keys(graph)){

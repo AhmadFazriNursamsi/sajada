@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Workspace from "@/components/Workspace";
+import FirstTenant from "@/components/FirstTenant";
 import { currentUser } from "@/lib/server/auth";
 import { isStaff } from "@/lib/roles";
 import { logoutAction } from "./actions/auth";
@@ -12,6 +13,17 @@ export default async function Page() {
   if (!user) redirect("/login");
   if (user.mustChangePassword) redirect("/password");
   if (!isStaff(user.role)) redirect("/portal");
+  if (!user.tenants.length && user.role === "admin")
+    return (
+      <div className="authpage">
+        <div className="authcard">
+          <h1>Buat koperasi pertama</h1>
+          <p className="muted">Belum ada koperasi. Data koperasi dimulai kosong: anggota, katalog, depot dan transaksi diisi setelah ini.</p>
+          <FirstTenant />
+          <form action={logoutAction} className="authback"><button className="textbutton">Keluar</button></form>
+        </div>
+      </div>
+    );
   if (!user.tenants.length)
     return (
       <div className="authpage">

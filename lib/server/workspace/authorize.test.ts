@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { authorizeSave } from "./authorize.ts";
-import { demoMain } from "./demo.ts";
+import { initialProducts, seedWarehouses } from "../../../shared/test-fixtures.ts";
+import { emptyReplenishment } from "../../../shared/replenishment.ts";
 import { applyStock, totalAvailable } from "../../../shared/warehouses.ts";
 import { automaticPO } from "../../../shared/replenishment.ts";
 import type { Role } from "../../roles.ts";
@@ -14,9 +15,16 @@ const refused = (role: Role, section: string, before: unknown, next: unknown, pa
   assert.throws(() => authorizeSave(as(role, name), section, before, next), pattern);
 
 function base() {
-  const main: any = demoMain("Sajada Nasional", [["Andi", "AN", "Bandung", "Bronze", 0], ["Budi", "BU", "Bogor", "Bronze", 0]]);
-  main.orders = [{ id: "SO-1", total: 50000, tenant: "Sajada Nasional", items: [], currency: "IDR", seller: "Andi" }];
-  return main;
+  const warehouses = seedWarehouses(initialProducts, "Koperasi Uji");
+  return {
+    members: [["Andi", "AN", "Bandung", "Bronze", 0], ["Budi", "BU", "Bogor", "Bronze", 0]],
+    orders: [{ id: "SO-1", total: 50000, tenant: "Koperasi Uji", items: [], currency: "IDR", seller: "Andi" }],
+    paid: [] as string[],
+    products: initialProducts.map((p) => ({ ...p, stock: totalAvailable(warehouses, p.id) })),
+    stockMoves: [],
+    warehouses,
+    replenishment: emptyReplenishment(),
+  } as any;
 }
 const clone = <T,>(v: T): T => structuredClone(v);
 const depot = (m: any) => m.warehouses.locations[0].id;
@@ -28,7 +36,7 @@ function checkout(before: any, actor: string) {
   const pid = product(before);
   next.warehouses = applyStock(before.warehouses, { id: "res-1", kind: "reserve", locationId: depot(before), productId: pid, quantity: 2, reference: "SO-2" }, actor, at);
   next.products = before.products.map((p: any) => ({ ...p, stock: totalAvailable(next.warehouses, p.id) }));
-  next.orders = [{ id: "SO-2", total: 100000, tenant: "Sajada Nasional", items: [], currency: "IDR", seller: "Andi", locationId: depot(before) }, ...before.orders];
+  next.orders = [{ id: "SO-2", total: 100000, tenant: "Koperasi Uji", items: [], currency: "IDR", seller: "Andi", locationId: depot(before) }, ...before.orders];
   let n = 0;
   next.replenishment = automaticPO(before.replenishment, next.warehouses, next.products, actor, at, () => "auto-" + ++n);
   return next;
@@ -103,7 +111,7 @@ test("accountant may only mark existing open orders paid", () => {
   allowed("accountant", "sajada-v2", b, pay);
 
   const newOrder = clone(pay);
-  newOrder.orders.push({ id: "SO-9", total: 1, tenant: "Sajada Nasional", items: [], currency: "IDR" });
+  newOrder.orders.push({ id: "SO-9", total: 1, tenant: "Koperasi Uji", items: [], currency: "IDR" });
   refused("accountant", "sajada-v2", b, newOrder, /pesanan & pembayaran/);
 
   const changedTotal = clone(pay);

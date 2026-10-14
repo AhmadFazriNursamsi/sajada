@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses,applyStock} from './warehouses.ts';import {dispatchBrowserOrder} from './order-dispatch.ts';import {receiveBrowserOrder,validateReceipt,completedForCommission,RECEIPT_POLICY} from './order-receipt.ts';import {commissions,POLICY} from './mlm.ts';
+import {applyStock} from './warehouses.ts';import {dispatchBrowserOrder} from './order-dispatch.ts';import {receiveBrowserOrder,validateReceipt,completedForCommission,RECEIPT_POLICY} from './order-receipt.ts';import {commissions,POLICY} from './mlm.ts';
 const dispatchAt='2026-10-08T01:00:00Z',at='2026-10-08T02:00:00Z';let w=seedWarehouses([{id:'sku',stock:10}],'A');w=applyStock(w,{id:'res',kind:'reserve',locationId:'depot-awal',productId:'sku',quantity:2,reference:'o'},'admin',dispatchAt);
 const original={id:'o',locationId:'depot-awal',receiptPolicy:RECEIPT_POLICY,seller:'Siti',upline:['Upline'],policy:POLICY,total:200,items:[{product_id:'sku',quantity:2}]};const sent=dispatchBrowserOrder(original,['o'],w,'SJ-001','admin',dispatchAt,()=> 'ship');
 const receive=(order=sent.order,state=sent.warehouses,ref='POD-001',name='Customer',time=at)=>receiveBrowserOrder(order,['o'],state,ref,name,'staff',time);

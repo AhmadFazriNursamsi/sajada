@@ -1,9 +1,10 @@
+import {seedRegions,seedWarehouses} from '../../shared/test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';import {readFile} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';import {pgcrypto} from '@electric-sql/pglite/contrib/pgcrypto';
 import {readMain,saveMain} from '../../lib/server/workspace/main.ts';
 import {validateWorkspace} from '../../lib/server/workspace/index.ts';
 import {UserError} from '../../lib/server/db.ts';
-import {tenantPeople,initialProducts} from '../../shared/demo-data.ts';
+import {tenantPeople,initialProducts} from '../../shared/test-fixtures.ts';
 import {addLocation,applyStock,emptyWarehouses,totalAvailable,available} from '../../shared/warehouses.ts';
 import {emptyReplenishment,setSupplier,setReorderPolicy,automaticPO,approvePO,cancelPO} from '../../shared/replenishment.ts';
 import {confirmPO} from '../../shared/po-confirmation.ts';
@@ -105,7 +106,7 @@ test('web workspace round-trips every core change through the domain tables unde
   s.replenishment=setReorderPolicy(s.replenishment,{locationId:depot,productId:p2,safety:200,target:260,minimumOrder:1,multiple:1,supplierId:supplier,supplier:'CV Uji Pemasok',unitCost:60000,leadDays:3,enabled:true,changedAt:at,changedBy:ACTOR},s.warehouses,s.products);
   s.replenishment=automaticPO(s.replenishment,s.warehouses,s.products,ACTOR,at,randomUUID);po=s.replenishment.orders[0].id;return s;});
  await step(db,t,name,'PO approved',s=>{s.replenishment=approvePO(s.replenishment,po,ACTOR,new Date().toISOString());return s;});
- await step(db,t,name,'supplier confirmation',s=>{s.replenishment=confirmPO(s.replenishment,{id:randomUUID(),orderId:po,confirmedOn:'2026-10-12',reference:'KONF-1',contact:'Rina',note:'Siap kirim'},ACTOR,new Date().toISOString());return s;});
+ await step(db,t,name,'supplier confirmation',s=>{s.replenishment=confirmPO(s.replenishment,{id:randomUUID(),orderId:po,confirmedOn:new Date(Date.now()+7*3600000).toISOString().slice(0,10),reference:'KONF-1',contact:'Rina',note:'Siap kirim'},ACTOR,new Date().toISOString());return s;});
  await step(db,t,name,'inspection with rejected units',s=>{const r=inspectPO(s.replenishment,s.warehouses,{id:randomUUID(),orderId:po,accepted:3,rejected:2,reason:'Kemasan rusak'},ACTOR,new Date().toISOString());s.replenishment=r.state;s.warehouses=r.warehouses;return s;});
  await step(db,t,name,'replacement delivery inspected',s=>{const r=inspectPO(s.replenishment,s.warehouses,{id:randomUUID(),orderId:po,accepted:2,rejected:0,reason:''},ACTOR,new Date().toISOString());s.replenishment=r.state;s.warehouses=r.warehouses;return s;});
  let replacement;
@@ -137,7 +138,7 @@ test('web workspace rows stay inside their tenant',async()=>{
 });
 
 import {SECTION_STORES} from '../../lib/server/workspace/sections.ts';
-import {seedRegions,assignRegion} from '../../shared/regions.ts';
+import {assignRegion} from '../../shared/regions.ts';
 import {issueNumber,emptyNumbers} from '../../shared/member-number.ts';
 import {activateCapitalWallet,disburseCapital,payWithCapitalWallet} from '../../shared/member-capital.ts';
 import {refundBrowserWalletOrder} from '../../shared/wallet-refund.ts';
@@ -216,11 +217,11 @@ test('every other workspace section round-trips through PostgreSQL',async()=>{
  }finally{await db.close();}
 });
 
-import {resetIn,restoreIn} from '../../lib/server/workspace/index.ts';
+import {restoreIn} from '../../lib/server/workspace/index.ts';
 import {withDatabaseIds} from '../../lib/server/workspace/legacy-ids.ts';
-import {seedWarehouses} from '../../shared/warehouses.ts';
+;
 
-test('demo reset and backup restore replace workspace history safely',async()=>{
+test('backup restore replaces workspace history safely',async()=>{
  const db=await setup();try{
  await db.query('SET ROLE web_test_api');
  const name='Sajada Nasional',t=await seed(db,name),ACT='Admin demo';
@@ -235,18 +236,11 @@ test('demo reset and backup restore replace workspace history safely',async()=>{
  all=await save(db,t,name,'sajada-capital-fees',()=>({memberDues:0,adminFee:0,other:2500000,note:'Uji'}));
  const backup=await readAll(db,t,name);
 
- // Reset: dispatched orders and stock history go, members, numbers and regions stay.
- await tx(db,t,c=>resetIn(c,t,name));
- all=await readAll(db,t,name);
- assert.equal(all['sajada-v2'].orders.length,0);assert.equal(all['sajada-v2'].paid.length,0);
- assert.deepEqual(all['sajada-v2'].products.map(p=>[p.sku,p.stock]),[['SJ-001',128],['SJ-002',42],['SJ-003',86],['SJ-004',215]]);
- assert.equal(all['sajada-v2'].warehouses.movements.length,4);
- assert.deepEqual(all['sajada-v2'].members,backup['sajada-v2'].members);
- assert.deepEqual(canon(all['sajada-member-numbers']),canon(backup['sajada-member-numbers']));
- assert.deepEqual(canon(all['sajada-regions']),canon(backup['sajada-regions']));
- assert.equal(all['sajada-capital-fees'],null);
+ // A later change: the fee plan is edited.
+ all=await save(db,t,name,'sajada-capital-fees',()=>({memberDues:100000,adminFee:0,other:2400000,note:'Diubah'}));
+ assert.notDeepEqual(canon(all),canon(backup));
 
- // Restore the backup taken before the reset: everything comes back exactly.
+ // Restore the backup taken before those changes: everything comes back exactly.
  await tx(db,t,c=>restoreIn(c,t,name,backup));
  assert.deepEqual(canon(await readAll(db,t,name)),canon(backup));
 
@@ -264,8 +258,5 @@ test('demo reset and backup restore replace workspace history safely',async()=>{
  assert.equal(all['sajada-v2'].warehouses.locations[0].name,'Depot provinsi • '+name);
  assert.deepEqual(canon(all['sajada-v2']),canon(converted['sajada-v2']));
 
- // Once the accounting API has posted for the tenant, demo reset is refused.
- await db.query('RESET ROLE');await db.query("INSERT INTO sajada.journal(tenant_id,id,reference,effective_date,status) VALUES($1,gen_random_uuid(),'API-1',current_date,'draft')",[t]);await db.query('SET ROLE web_test_api');
- await assert.rejects(tx(db,t,c=>resetIn(c,t,name)),/catatan akuntansi/);
  }finally{await db.close();}
 });

@@ -12,8 +12,8 @@ const MAX_DAYS = 7;
 const MAX_FAILURES = 5;
 const LOCK_MINUTES = 15;
 
-// The national koperasi first (the app's default), then the others by name.
-export const TENANT_ORDER = "(name LIKE '%Nasional') DESC, name";
+// Koperasi are listed by name everywhere.
+export const TENANT_ORDER = "name";
 
 const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
 

@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses,applyStock,stockAt,available} from './warehouses.ts';import {dispatchBrowserOrder,validateDispatch} from './order-dispatch.ts';
+import {applyStock,stockAt,available} from './warehouses.ts';import {dispatchBrowserOrder,validateDispatch} from './order-dispatch.ts';
 const at='2026-10-08T02:00:00Z';let w=seedWarehouses([{id:'A',stock:10},{id:'B',stock:20}],'Tenant');
 for(const [productId,quantity]of [['A',2],['B',3]])w=applyStock(w,{id:'res'+productId,kind:'reserve',locationId:'depot-awal',productId,quantity,reference:'order'},'admin',at);
 const order={id:'order',locationId:'depot-awal',items:[{product_id:'A',quantity:2},{product_id:'B',quantity:3}]};

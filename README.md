@@ -27,7 +27,7 @@ Gunakan Node.js 22.13+ dan pnpm sesuai `packageManager`, serta Docker untuk Post
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm db:setup    # sekali: PostgreSQL (Docker), role aplikasi, .env.local, data demo
+pnpm db:setup    # sekali: PostgreSQL (Docker), role aplikasi, .env.local, admin pertama
 pnpm dev:all     # PostgreSQL + Next.js di http://127.0.0.1:5173
 pnpm dev         # hanya Next.js, jika PostgreSQL sudah berjalan
 pnpm build && pnpm start   # mode production di port 5173
@@ -43,7 +43,7 @@ pnpm docker:down   # hentikan container (data PostgreSQL tetap di volume)
 
 Untuk server, image siap pakai dipublikasikan ke GHCR; lihat [`deploy/README.md`](deploy/README.md).
 
-Container `app` dibangun dari `Dockerfile` (Node 24), mengisi koperasi demo yang belum ada saat start, membuat admin pertama dari `SAJADA_ADMIN_PASSWORD` di `services/.env`, dan dipublikasikan di 127.0.0.1. Service `db-setup` menjalankan `services/transaction/web-auth.sql` (tabel login) lalu `services/local-dev-role.sql` setiap kali naik. ClickHouse ada di profil `analytics` (`docker compose --project-directory services --profile analytics up -d`). Bila port 5432 sudah dipakai, salin `services/compose.override.example.yaml` menjadi `services/compose.override.yaml`. `pnpm dev`/`dev:all` (port 5173) dan container (port 3000) memakai database yang sama. Image aplikasi sekitar 300 MB (output `standalone` Next.js); build membutuhkan beberapa GB ruang disk sementara, bersihkan dengan `docker builder prune` bila disk menipis.
+Container `app` dibangun dari `Dockerfile` (Node 24), membuat admin pertama dari `SAJADA_ADMIN_PASSWORD` di `services/.env`, dan dipublikasikan di 127.0.0.1. Service `db-setup` menjalankan `services/transaction/web-auth.sql` (tabel login) lalu `services/local-dev-role.sql` setiap kali naik. ClickHouse ada di profil `analytics` (`docker compose --project-directory services --profile analytics up -d`). Bila port 5432 sudah dipakai, salin `services/compose.override.example.yaml` menjadi `services/compose.override.yaml`. `pnpm dev`/`dev:all` (port 5173) dan container (port 3000) memakai database yang sama. Image aplikasi sekitar 300 MB (output `standalone` Next.js); build membutuhkan beberapa GB ruang disk sementara, bersihkan dengan `docker builder prune` bila disk menipis.
 
 ## Login dan peran
 
@@ -51,7 +51,7 @@ Container `app` dibangun dari `Dockerfile` (Node 24), mengisi koperasi demo yang
 
 | Peran | Boleh mengubah |
 |---|---|
-| Admin / pengurus | Semua data, pengguna, reset dan pemulihan backup; semua koperasi |
+| Admin / pengurus | Semua data, koperasi, pengguna dan pemulihan backup; semua koperasi |
 | Akuntan | Akuntansi, status komisi, investor & pendanaan, bagi hasil, rincian iuran; mencatat pembayaran pesanan |
 | Petugas anggota & penjualan | Anggota, nomor anggota, struktur daerah, jaringan sponsor, aktivasi & saldo belanja, pesanan (checkout, bayar saldo, kirim, terima, batal) |
 | Petugas depot & pengadaan | Produk, depot & persediaan, safety stock, PO, pemasok |
@@ -60,7 +60,9 @@ Container `app` dibangun dari `Dockerfile` (Node 24), mengisi koperasi demo yang
 
 Staf melihat semua menu koperasi yang diizinkan untuk akunnya. Aturan ditegakkan di server (`lib/server/workspace/authorize.ts`): perubahan di luar peran ditolak; reservasi/pengiriman stok dari penjualan dan draf PO otomatis hanya diterima bila hasilnya sama dengan memutar ulang aksi itu atas data tersimpan, dengan nama pelaksana = akun yang login. Sesi berakhir setelah 12 jam tanpa aktivitas (maksimal 7 hari); 5 kali salah password mengunci akun 15 menit. Lupa password admin: `node --env-file=.env.local scripts/admin-account.ts reset admin` (atau `docker compose exec app node scripts/admin-account.ts reset admin`).
 
-`pnpm db:setup` aman dijalankan ulang: password di `services/.env`, isi `.env.local`, dan data yang sudah ada dipertahankan. `pnpm db:seed` hanya mengisi koperasi demo yang belum ada.
+`pnpm db:setup` aman dijalankan ulang: password di `services/.env`, isi `.env.local`, dan data yang sudah ada dipertahankan.
+
+Tidak ada data contoh: database dimulai kosong. Admin membuat koperasi di layar pertama setelah login (atau Pengaturan → Koperasi), lalu depot, produk, wilayah dan anggota diisi lewat aplikasi. Data contoh hanya ada di `shared/test-fixtures.ts` untuk tes. Bila database gagal dimuat, aplikasi menampilkan pesan galat, bukan data pengganti.
 
 Web dan API berjalan dalam satu proses Next.js:
 

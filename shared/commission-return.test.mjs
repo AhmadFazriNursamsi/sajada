@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses,applyStock} from './warehouses.ts';import {commissions,POLICY} from './mlm.ts';import {returnCorrections,correctionPositions,assertCommissionPayable} from './commission-return.ts';
+import {applyStock} from './warehouses.ts';import {commissions,POLICY} from './mlm.ts';import {returnCorrections,correctionPositions,assertCommissionPayable} from './commission-return.ts';
 const at='2026-10-08T03:00:00Z';
 const sale={id:'order',locationId:'depot-awal',total:100000,seller:'Member',upline:['A','B','C','D'],policy:POLICY,items:[{product_id:'sku',quantity:10,price:10000}]};
 let w=seedWarehouses([{id:'sku',stock:10}],'A');w=applyStock(w,{id:'res',kind:'reserve',locationId:'depot-awal',productId:'sku',quantity:10,reference:'order'},'admin',at);w=applyStock(w,{id:'ship',kind:'ship',sourceId:'res',reference:'SJ'},'admin',at);

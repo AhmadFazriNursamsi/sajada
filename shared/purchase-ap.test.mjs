@@ -1,5 +1,6 @@
+import {seedWarehouses} from './test-fixtures.ts';
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {seedWarehouses} from './warehouses.ts';import {emptyReplenishment,setReorderPolicy,automaticPO,approvePO,receivePO} from './replenishment.ts';
+;import {emptyReplenishment,setReorderPolicy,automaticPO,approvePO,receivePO} from './replenishment.ts';
 import {invoiceFromReceipt,validatePurchaseBills,receivedPurchases} from './purchase-ap.ts';import {ledger,outstanding,validatePayment,trialBalance} from './accounting.ts';
 const ps=[{id:'sku',name:'Coffee',stock:0,active:true}],at='2026-10-08T02:00:00.000Z';let w=seedWarehouses(ps,'A'),s=setReorderPolicy(emptyReplenishment(),{locationId:'depot-awal',productId:'sku',supplier:'Supplier',unitCost:100,safety:5,target:20,minimumOrder:1,multiple:1,leadDays:3,enabled:true,changedAt:at,changedBy:'Admin'},w,ps);s=automaticPO(s,w,ps,'Admin',at,()=> 'po');s=approvePO(s,'po','Admin',at);let r=receivePO(s,w,'po','receipt1',5,'Admin',at);s=r.state;w=r.warehouses;
 const input={id:'ap1',receiptId:'receipt1',reference:'INV-1',date:'2026-10-08',due:'2026-10-20',actor:'Admin',at};
