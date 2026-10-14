@@ -6,6 +6,8 @@ import { readMain, saveMain, type MainSection } from "./main.ts";
 import { SECTION_STORES } from "./sections.ts";
 import { demoMain } from "./demo.ts";
 import { withDatabaseIds } from "./legacy-ids.ts";
+import { authorizeSave } from "./authorize.ts";
+import type { Role } from "../../roles.ts";
 import { emptyNumbers, validateNumberRestore, type NumberState } from "../../../shared/member-number.ts";
 
 type Sections = Record<string, unknown>;
@@ -33,16 +35,18 @@ export function loadWorkspace(tenantName: string): Promise<Workspace> {
 }
 
 /**
- * Replaces one section (null removes it). The whole tenant workspace (database sections plus
- * any browser-held sections passed as context) must pass the same integrity rules as a backup
- * restore before anything is written.
+ * Replaces one section (null removes it). The change must be allowed for the actor's role
+ * (authorize.ts), and the whole tenant workspace (database sections plus any browser-held
+ * sections passed as context) must pass the same integrity rules as a backup restore before
+ * anything is written.
  */
-export function saveSection(tenantName: string, section: string, value: unknown, browserSections: Sections, expectedRevision: number): Promise<number> {
+export function saveSection(actor: { role: Role; name: string }, tenantName: string, section: string, value: unknown, browserSections: Sections, expectedRevision: number): Promise<number> {
   if (!DB_SECTIONS.includes(section)) throw new UserError("Bagian data tidak dikenal.");
   return inTenant(tenantName, async (c, t) => {
     if ((await revision(c, t)) !== expectedRevision)
       throw new UserError("Data koperasi sudah diubah di tab atau perangkat lain. Data terbaru dimuat ulang; ulangi perubahan Anda.");
     const before = await readAll(c, t, tenantName);
+    authorizeSave(actor, section, before[section], value);
     const context = Object.fromEntries(Object.entries(browserSections).filter(([key, v]) => !DB_SECTIONS.includes(key) && v != null));
     validateWorkspace(tenantName, { ...context, ...before, [section]: value });
     if (section === "sajada-v2") {

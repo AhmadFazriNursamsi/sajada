@@ -5,17 +5,18 @@ import {completedForCommission} from '../shared/order-receipt';
 import {useEffect,useState} from 'react';
 import {ancestors,changeSponsor,descendants,commissions,volume,transition,POLICY,type Graph,type Sale} from '../shared/mlm';
 import {workspaceStore} from '../lib/workspace-store';
+import {useActor} from '../lib/session-context';
 export function loadGraph(tenant:string,names:string[]):Graph{
  let graph:Graph={};try{graph=JSON.parse(workspaceStore.getItem('sajada-network:'+tenant)||'{}')}catch{}
  const clean:Graph={};for(const [i,name] of names.entries()){const existing=graph[name];clean[name]=existing===null?null:existing&&names.includes(existing)?existing:i===0?null:names[0];}return clean;
 }
 export function saleSnapshot(tenant:string,names:string[],seller:string){const graph=loadGraph(tenant,names);return {seller,upline:ancestors(graph,seller),policy:POLICY};}
 type Props={tenant:string;members:any[];orders:any[];paid:string[];money:(n:number)=>string;notify:(s:string)=>void;page:string;warehouses:WarehouseState};
-export default function MLMPanel({tenant,members,orders,paid,money,notify,page,warehouses}:Props){
+export default function MLMPanel({tenant,members,orders,paid,money,notify,page,warehouses}:Props){const actor=useActor();
  const names=members.map(m=>String(m[0]));const [graph,setGraph]=useState<Graph>({}),[focus,setFocus]=useState(names[0]||''),[edit,setEdit]=useState(names[0]||''),[parent,setParent]=useState(''),[delivered,setDelivered]=useState<string[]>([]),[statuses,setStatuses]=useState<Record<string,string>>({}),[audit,setAudit]=useState<any[]>([]),[correctionApprovals,setCorrectionApprovals]=useState<Record<string,string>>({});
  useEffect(()=>{setGraph(loadGraph(tenant,names));setFocus(names[0]||'');setEdit(names[0]||'');setParent('');try{const d=JSON.parse(workspaceStore.getItem('sajada-commissions:'+tenant)||'{}');setDelivered(d.delivered||[]);setStatuses(d.statuses||{});setAudit(d.audit||[]);setCorrectionApprovals(d.correctionApprovals||{})}catch{setDelivered([]);setStatuses({});setAudit([]);setCorrectionApprovals({})}},[tenant,members]);
  const save=(d=delivered,s=statuses,a=audit,ca=correctionApprovals)=>workspaceStore.setItem('sajada-commissions:'+tenant,JSON.stringify({delivered:d,statuses:s,audit:a,correctionApprovals:ca}));
- function log(action:string,reference:string){return [{at:new Date().toISOString(),action,reference,actor:'Admin demo'},...audit];}
+ function log(action:string,reference:string){return [{at:new Date().toISOString(),action,reference,actor:actor},...audit];}
  const sales:Sale[]=orders.filter(o=>paid.includes(o.id)&&completedForCommission(o,delivered)&&o.seller&&o.policy===POLICY);
  const rows=commissions(sales),corrections=returnCorrections(sales,warehouses),position=correctionPositions(rows,corrections,statuses,correctionApprovals).find(p=>p.beneficiary===focus);const own=rows.filter(r=>r.beneficiary===focus);const totals=volume(sales,focus);const children=Object.keys(graph).filter(n=>graph[n]===focus);const sum=(state:string)=>own.filter(r=>(statuses[r.id]||'pending')===state).reduce((s,r)=>s+r.amount,0);
  function advance(id:string,action:string){try{if(action==='pay')assertCommissionPayable(id,corrections);const next={...statuses,[id]:transition(statuses[id]||'pending',action)};const a=log(action==='approve'?'Komisi disetujui':'Pembayaran komisi disimulasikan',id);setStatuses(next);setAudit(a);save(delivered,next,a);notify(action==='approve'?'Komisi demo disetujui':'Pembayaran disimulasikan; tidak ada transfer dana atau jurnal GL.')}catch(e){notify((e as Error).message)}}

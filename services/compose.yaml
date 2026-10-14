@@ -20,17 +20,15 @@ services:
       - pgdata:/var/lib/postgresql/data
   # Creates/updates the non-owner role the app connects as (also for an existing data volume).
   db-setup:
-    image: postgres:16-alpine
+    build: { context: .., dockerfile: docker/db.Dockerfile }
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       APP_DB_PASSWORD: ${SAJADA_API_PASSWORD:?Set SAJADA_API_PASSWORD}
-    volumes:
-      - ./local-dev-role.sql:/local-dev-role.sql:ro
-    command: ["sh", "-c", "psql -h postgres -U sajada_owner -d sajada -v ON_ERROR_STOP=1 -q -v pw=\"$$APP_DB_PASSWORD\" -f /local-dev-role.sql"]
-  # Web + /v1 API. No sign-in yet: reachable only from this computer (127.0.0.1).
+    command: ["sh", "-c", "psql -h postgres -U sajada_owner -d sajada -v ON_ERROR_STOP=1 -q -v pw=\"$$APP_DB_PASSWORD\" -f /sajada/app-role.sql"]
+  # Web + /v1 API on http://127.0.0.1:3000; sign in with the admin from services/.env.
   app:
     build: ..
     depends_on:
@@ -38,7 +36,8 @@ services:
         condition: service_completed_successfully
     environment:
       DATABASE_URL: postgres://sajada_api:${SAJADA_API_PASSWORD}@postgres:5432/sajada
-      SAJADA_LOCAL_MODE: "1"
+      SAJADA_ADMIN_USERNAME: ${SAJADA_ADMIN_USERNAME:-admin}
+      SAJADA_ADMIN_PASSWORD: ${SAJADA_ADMIN_PASSWORD:-}
       OIDC_ISSUER: ${OIDC_ISSUER:-http://127.0.0.1:8085/realms/sajada}
       OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://127.0.0.1:8085/realms/sajada/protocol/openid-connect/certs}
       OIDC_AUDIENCE: ${OIDC_AUDIENCE:-sajada-api}

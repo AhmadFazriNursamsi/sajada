@@ -3,8 +3,8 @@
 #   cp .env.example .env   # then fill in the passwords
 #   docker compose pull && docker compose up -d
 # The app is published on APP_BIND (loopback by default); nginx in front of it serves the domain
-# over HTTPS (nginx-sajada.conf). It has no accounts yet: SAJADA_WEB_PASSWORD protects every page,
-# or SAJADA_OPEN_ACCESS=1 leaves the domain open to everyone (see .env.example).
+# over HTTPS (nginx-sajada.conf). Everyone signs in with their own account; the first admin
+# comes from SAJADA_ADMIN_USERNAME/SAJADA_ADMIN_PASSWORD (see .env.example).
 name: sajada
 services:
   postgres:
@@ -38,11 +38,8 @@ services:
         condition: service_completed_successfully
     environment:
       DATABASE_URL: postgres://sajada_api:${SAJADA_API_PASSWORD}@postgres:5432/sajada
-      SAJADA_LOCAL_MODE: "1"
-      SAJADA_PUBLIC_HOSTS: ${SAJADA_PUBLIC_HOSTS:-}
-      SAJADA_WEB_USER: ${SAJADA_WEB_USER:-admin}
-      SAJADA_WEB_PASSWORD: ${SAJADA_WEB_PASSWORD:-}
-      SAJADA_OPEN_ACCESS: ${SAJADA_OPEN_ACCESS:-}
+      SAJADA_ADMIN_USERNAME: ${SAJADA_ADMIN_USERNAME:-admin}
+      SAJADA_ADMIN_PASSWORD: ${SAJADA_ADMIN_PASSWORD:-}
       OIDC_ISSUER: ${OIDC_ISSUER:-http://127.0.0.1:8085/realms/sajada}
       OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://127.0.0.1:8085/realms/sajada/protocol/openid-connect/certs}
       OIDC_AUDIENCE: ${OIDC_AUDIENCE:-sajada-api}

@@ -14,3 +14,7 @@ DO $$DECLARE t text;BEGIN FOR t IN SELECT tablename FROM pg_tables WHERE scheman
  EXECUTE format('GRANT DELETE ON sajada.%I TO sajada_api',t);END LOOP;END$$;
 -- Demo reset and backup restore in the web app.
 GRANT EXECUTE ON FUNCTION sajada.web_clear_workspace(uuid,text) TO sajada_api;
+-- Web sign-in (web-auth.sql, applied before this file): sign-out deletes sessions, account
+-- edits replace koperasi access, and the audit trail is append-only.
+GRANT DELETE ON sajada.app_session, sajada.app_user_tenant TO sajada_api;
+REVOKE UPDATE ON sajada.app_user_audit FROM sajada_api;

@@ -26,5 +26,7 @@ COPY services/transaction/capital-wallet-refund.sql /docker-entrypoint-initdb.d/
 COPY services/transaction/web-workspace.sql /docker-entrypoint-initdb.d/21-web-workspace.sql
 COPY services/transaction/web-sections.sql /docker-entrypoint-initdb.d/22-web-sections.sql
 COPY services/transaction/web-maintenance.sql /docker-entrypoint-initdb.d/23-web-maintenance.sql
-# Applied by the db-setup service on every start (deploy/compose.yaml).
-COPY services/local-dev-role.sql /sajada/app-role.sql
+# Applied by the db-setup service on every start (deploy/compose.yaml, services/compose.yaml):
+# the idempotent sign-in tables, then the application role and its grants.
+COPY services/transaction/web-auth.sql services/local-dev-role.sql /tmp/role/
+RUN mkdir -p /sajada && cat /tmp/role/web-auth.sql /tmp/role/local-dev-role.sql > /sajada/app-role.sql && rm -r /tmp/role

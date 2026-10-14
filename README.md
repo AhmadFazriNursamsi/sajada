@@ -4,7 +4,7 @@ Paket source v0.42. Satu aplikasi Next.js (web React + API transaksi `/v1/*` pad
 
 ## Status implementasi
 
-Seluruh data web (anggota, katalog, pesanan, stok, PO, modal, investor, bagi hasil, komisi, wilayah, buku besar) disimpan di PostgreSQL per koperasi; localStorage tidak dipakai lagi. Web belum mempunyai login: fungsi server web hanya melayani komputer lokal (`SAJADA_LOCAL_MODE=1`, host 127.0.0.1). Aturan bisnis web tetap seperti demo; aktivasi saldo, bagi hasil, dan tagihan pemasok dari web belum membuat jurnal/persetujuan seperti modul akuntansi API `/v1`. Portal toko anggota mandiri, pencairan hasil penjualan nyata, self-service JWT anggota, backend FX/MLM lengkap, dan refund setelah pengiriman belum aktif. Komponen Redis/Kafka/Keycloak yang dibahas pada blueprint belum seluruhnya diimplementasikan. Mobile berupa starter, belum APK/IPA.
+Seluruh data web (anggota, katalog, pesanan, stok, PO, modal, investor, bagi hasil, komisi, wilayah, buku besar) disimpan di PostgreSQL per koperasi; localStorage tidak dipakai lagi. Setiap orang login dengan akunnya sendiri; peran (admin, akuntan, petugas anggota & penjualan, petugas depot & pengadaan, pemantau) menentukan data yang boleh diubah dan diperiksa di server, sedangkan anggota dan investor hanya melihat data miliknya di portal `/portal` (lihat [Login dan peran](#login-dan-peran)). Aturan bisnis web tetap seperti demo; aktivasi saldo, bagi hasil, dan tagihan pemasok dari web belum membuat jurnal/persetujuan seperti modul akuntansi API `/v1`. Toko anggota mandiri, pencairan hasil penjualan nyata, self-service JWT anggota, backend FX/MLM lengkap, dan refund setelah pengiriman belum aktif. Komponen Redis/Kafka/Keycloak yang dibahas pada blueprint belum seluruhnya diimplementasikan. Mobile berupa starter, belum APK/IPA.
 
 Penyertaan anggota Rp12,5 juta terdiri dari Rp10 juta saldo belanja koperasi + Rp2,5 juta iuran/admin/lainnya yang rinciannya dapat dikonfigurasi. Dasar recovery investor tetap Rp12,5 juta; bagi hasil bertingkat mengikuti keputusan sebelumnya. Saldo hanya untuk pesanan koperasi dan refund penuh sebelum pengiriman; tidak ada tarik tunai/transfer eksternal.
 
@@ -43,7 +43,22 @@ pnpm docker:down   # hentikan container (data PostgreSQL tetap di volume)
 
 Untuk server, image siap pakai dipublikasikan ke GHCR; lihat [`deploy/README.md`](deploy/README.md).
 
-Container `app` dibangun dari `Dockerfile` (Node 24), mengisi koperasi demo yang belum ada saat start, dan hanya dipublikasikan di 127.0.0.1 karena belum ada login. Service `db-setup` menjalankan `services/local-dev-role.sql` setiap kali naik. ClickHouse ada di profil `analytics` (`docker compose --project-directory services --profile analytics up -d`). Bila port 5432 sudah dipakai, salin `services/compose.override.example.yaml` menjadi `services/compose.override.yaml`. `pnpm dev`/`dev:all` (port 5173) dan container (port 3000) memakai database yang sama. Image aplikasi sekitar 300 MB (output `standalone` Next.js); build membutuhkan beberapa GB ruang disk sementara, bersihkan dengan `docker builder prune` bila disk menipis.
+Container `app` dibangun dari `Dockerfile` (Node 24), mengisi koperasi demo yang belum ada saat start, membuat admin pertama dari `SAJADA_ADMIN_PASSWORD` di `services/.env`, dan dipublikasikan di 127.0.0.1. Service `db-setup` menjalankan `services/transaction/web-auth.sql` (tabel login) lalu `services/local-dev-role.sql` setiap kali naik. ClickHouse ada di profil `analytics` (`docker compose --project-directory services --profile analytics up -d`). Bila port 5432 sudah dipakai, salin `services/compose.override.example.yaml` menjadi `services/compose.override.yaml`. `pnpm dev`/`dev:all` (port 5173) dan container (port 3000) memakai database yang sama. Image aplikasi sekitar 300 MB (output `standalone` Next.js); build membutuhkan beberapa GB ruang disk sementara, bersihkan dengan `docker builder prune` bila disk menipis.
+
+## Login dan peran
+
+`pnpm db:setup` membuat admin pertama (`admin`, password di `services/.env` → `SAJADA_ADMIN_PASSWORD`); password itu wajib diganti saat login pertama. Admin membuat akun lain di **Pengaturan → Pengguna & akses** dan memberikan password sementara yang juga wajib diganti.
+
+| Peran | Boleh mengubah |
+|---|---|
+| Admin / pengurus | Semua data, pengguna, reset dan pemulihan backup; semua koperasi |
+| Akuntan | Akuntansi, status komisi, investor & pendanaan, bagi hasil, rincian iuran; mencatat pembayaran pesanan |
+| Petugas anggota & penjualan | Anggota, nomor anggota, struktur daerah, jaringan sponsor, aktivasi & saldo belanja, pesanan (checkout, bayar saldo, kirim, terima, batal) |
+| Petugas depot & pengadaan | Produk, depot & persediaan, safety stock, PO, pemasok |
+| Pemantau | Hanya melihat |
+| Anggota / Investor | Portal `/portal`: data miliknya saja |
+
+Staf melihat semua menu koperasi yang diizinkan untuk akunnya. Aturan ditegakkan di server (`lib/server/workspace/authorize.ts`): perubahan di luar peran ditolak; reservasi/pengiriman stok dari penjualan dan draf PO otomatis hanya diterima bila hasilnya sama dengan memutar ulang aksi itu atas data tersimpan, dengan nama pelaksana = akun yang login. Sesi berakhir setelah 12 jam tanpa aktivitas (maksimal 7 hari); 5 kali salah password mengunci akun 15 menit. Lupa password admin: `node --env-file=.env.local scripts/admin-account.ts reset admin` (atau `docker compose exec app node scripts/admin-account.ts reset admin`).
 
 `pnpm db:setup` aman dijalankan ulang: password di `services/.env`, isi `.env.local`, dan data yang sudah ada dipertahankan. `pnpm db:seed` hanya mengisi koperasi demo yang belum ada.
 
@@ -57,7 +72,7 @@ Web dan API berjalan dalam satu proses Next.js:
 
 Penyimpanan web (`lib/workspace-store.ts` → `lib/server/workspace/`): setiap simpan memvalidasi seluruh data koperasi dengan aturan backup (`shared/backup.ts`) lalu menulis perubahan ke tabel relasional dalam satu transaksi dengan RLS per koperasi. Riwayat (pesanan, kartu stok, PO, nomor anggota) tidak dapat dihapus atau diubah lewat simpan biasa. Bila koperasi sudah diubah di tab/perangkat lain, simpan ditolak dan data terbaru dimuat ulang. Reset demo dan pemulihan backup memakai fungsi `sajada.web_clear_workspace`, yang hanya diberikan ke role lokal dan ditolak bila API sudah mencatat jurnal/modal untuk koperasi tersebut.
 
-Konfigurasi dibaca dari `.env.local` (tidak di-commit): `DATABASE_URL` untuk role aplikasi non-owner, `SAJADA_LOCAL_MODE=1`, serta `OIDC_JWKS_URL`, `OIDC_ISSUER`, `OIDC_AUDIENCE` untuk `/v1/*`. Tanpa `DATABASE_URL`/OIDC, `/v1/*` dan `/healthz` menjawab 503.
+Konfigurasi dibaca dari `.env.local` (tidak di-commit): `DATABASE_URL` untuk role aplikasi non-owner, `SAJADA_ADMIN_USERNAME`/`SAJADA_ADMIN_PASSWORD` untuk admin pertama, serta `OIDC_JWKS_URL`, `OIDC_ISSUER`, `OIDC_AUDIENCE` untuk `/v1/*`. Tanpa `DATABASE_URL`/OIDC, `/v1/*` dan `/healthz` menjawab 503.
 
 ## PostgreSQL dan ClickHouse
 

@@ -38,6 +38,8 @@ Kolom `seq` menjaga urutan daftar seperti di aplikasi. Bagian yang aturannya ber
 
 Grant role aplikasi lokal ada di `services/local-dev-role.sql` (dipakai `pnpm db:setup`): SELECT/INSERT/UPDATE pada tabel schema, DELETE hanya pada tabel `web_*`, dan EXECUTE `sajada.web_clear_workspace` untuk reset/pemulihan demo. Fungsi tersebut melewati penjaga append-only; jangan diberikan pada database produksi.
 
+Login web memakai `services/transaction/web-auth.sql` (idempoten; dipasang `db-setup` dan `pnpm db:setup` setiap kali, juga pada database lama): `app_user` (username, nama, peran, hash scrypt, status, akun anggota/investor terhubung ke `member`/`investor`), `app_user_tenant` (koperasi yang boleh dibuka akun staf), `app_session` (hanya SHA-256 token sesi), dan `app_user_audit` (login, gagal login, perubahan akun; append-only untuk role aplikasi). Role aplikasi boleh DELETE pada `app_session` dan `app_user_tenant`.
+
 ## ClickHouse
 
 `database/clickhouse-active-schema.sql` berasal dari services/analytics/schema.sql, dipakai consumer domain_event yang tersedia. `architecture/clickhouse.sql` adalah blueprint sales_event lain; jangan menyamakannya dengan tabel consumer yang aktif. Tenant filter wajib di query analytics. RLS PostgreSQL tidak otomatis berlaku di ClickHouse.
