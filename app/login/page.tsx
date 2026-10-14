@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/AuthForms";
 import { currentUser } from "@/lib/server/auth";
@@ -17,6 +18,7 @@ export default async function LoginPage() {
         <h1>Masuk ke Sajada</h1>
         <p className="muted">Gunakan akun yang diberikan admin koperasi.</p>
         <LoginForm />
+        <p className="authback">Calon anggota? <Link href="/daftar">Daftar di sini</Link></p>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import { emptyNumbers, validateNumberRestore, type NumberState } from "../../../
 
 type Sections = Record<string, unknown>;
 
-async function readAll(c: Tx, t: string, tenantName: string): Promise<Sections> {
+export async function readAll(c: Tx, t: string, tenantName: string): Promise<Sections> {
   const data: Sections = { "sajada-v2": await readMain(c, t, tenantName) };
   for (const [section, store] of Object.entries(SECTION_STORES)) data[section] = await store.read(c, t);
   return data;
@@ -23,7 +23,7 @@ async function revision(c: Tx, t: string): Promise<number> {
   await c.query("INSERT INTO sajada.web_workspace_revision(tenant_id) VALUES($1) ON CONFLICT DO NOTHING", [t]);
   return Number((await c.query("SELECT revision FROM sajada.web_workspace_revision WHERE tenant_id=$1", [t])).rows[0].revision);
 }
-async function bump(c: Tx, t: string): Promise<number> {
+export async function bump(c: Tx, t: string): Promise<number> {
   await revision(c, t);
   return Number((await c.query("UPDATE sajada.web_workspace_revision SET revision=revision+1 WHERE tenant_id=$1 RETURNING revision", [t])).rows[0].revision);
 }

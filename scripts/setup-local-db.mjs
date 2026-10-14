@@ -25,7 +25,7 @@ run("docker", ["compose", "up", "-d", "--wait", "postgres"], { cwd: services });
 
 // 3. Application role and grants.
 run("docker", ["compose", "exec", "-T", "postgres", "psql", "-U", "sajada_owner", "-d", "sajada", "-v", "ON_ERROR_STOP=1", "-q", "-v", `pw=${env.SAJADA_API_PASSWORD}`],
-  { cwd: services, input: Buffer.concat([readFileSync(`${services}/transaction/web-auth.sql`), readFileSync(`${services}/local-dev-role.sql`)]) });
+  { cwd: services, input: Buffer.concat(["transaction/web-auth.sql", "transaction/web-registration.sql", "local-dev-role.sql"].map((f) => readFileSync(`${services}/${f}`))) });
 
 // 4. .env.local for Next.js (git-ignored); keeps values already set.
 const port = spawnSync("docker", ["compose", "port", "postgres", "5432"], { cwd: services, encoding: "utf8" }).stdout.trim().split(":").pop() || "5432";

@@ -10,7 +10,8 @@ async function setup(){
  const db=new PGlite({extensions:{pgcrypto}});
  for(const f of files)await db.exec(await readFile(new URL(f,root),'utf8'));
  const auth=await readFile(new URL('services/transaction/web-auth.sql',root),'utf8');
- await db.exec(auth);await db.exec(auth);// applied on every start, so it must be repeatable
+ const registration=await readFile(new URL('services/transaction/web-registration.sql',root),'utf8');
+ for(let i=0;i<2;i++){await db.exec(auth);await db.exec(registration);}// applied on every start, so it must be repeatable
  const tenant=(await db.query("INSERT INTO sajada.tenant(name) VALUES('Koperasi Uji') RETURNING id")).rows[0].id;
  const member=(await db.query("INSERT INTO sajada.member(tenant_id,name) VALUES($1,'Ani') RETURNING id",[tenant])).rows[0].id;
  return {db,tenant,member};

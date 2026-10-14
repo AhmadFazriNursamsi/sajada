@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Sends visitors without a session cookie to the sign-in page. This is only a shortcut: every
 // page and server action checks the session itself (lib/server/auth.ts).
-// /v1 has its own token auth; /healthz, the logo and app icons stay public.
+// /daftar (member sign-up) is public; /v1 has its own token auth; /healthz, the logo and icons too.
 export function proxy(request: NextRequest) {
   if (request.cookies.has("sajada_session")) return NextResponse.next();
   if (request.method === "GET" || request.method === "HEAD") return NextResponse.redirect(new URL("/login", request.url));
@@ -10,5 +10,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!login|v1|healthz|brand/|_next/|favicon\\.ico|icon\\.png|apple-icon\\.png).*)"],
+  matcher: ["/((?!login|daftar|v1|healthz|brand/|_next/|favicon\\.ico|icon\\.png|apple-icon\\.png).*)"],
 };

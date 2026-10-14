@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { cookies, headers } from "next/headers";
 import { pool, UserError } from "./db.ts";
 import { dummyHash, verifyPassword } from "./password.ts";
+import { registrationState } from "./registration.ts";
 import { isRole, isStaff, type Role, type SessionUser } from "../roles.ts";
 
 // Sign-in sessions for the web app. The cookie holds a random token; the database keeps only
@@ -31,7 +32,11 @@ export async function signIn(usernameInput: string, password: string): Promise<{
   const username = String(usernameInput ?? "").trim().toLowerCase();
   const row = (await pool().query("SELECT id,password_hash,active,failed_logins,locked_until FROM sajada.app_user WHERE username=$1", [username])).rows[0];
   if (!row) {
-    await verifyPassword(String(password ?? ""), await dummyHash());
+    // A self-registered member waits for approval; with the right password, say so.
+    const request = await registrationState(username);
+    if (request && (await verifyPassword(String(password ?? ""), request.hash)))
+      return { error: request.status === "pending" ? "Pendaftaran Anda masih menunggu persetujuan petugas koperasi." : `Pendaftaran Anda ditolak: ${request.note ?? "hubungi petugas koperasi"}.` };
+    if (!request) await verifyPassword(String(password ?? ""), await dummyHash());
     return { error: "Username atau password salah." };
   }
   if (row.locked_until && new Date(row.locked_until) > new Date())
